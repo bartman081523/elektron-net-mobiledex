@@ -68,6 +68,7 @@ android {
             buildConfigField("int", "RPC_PORT", "8332")
             buildConfigField("String", "DEFAULT_THEME", "\"teal\"")
             buildConfigField("boolean", "IS_TESTNET", "false")
+            buildConfigField("String", "DEFAULT_WALLET", "\"elektron\"")
         }
         create("tnet") {
             dimension = "chain"
@@ -78,10 +79,11 @@ android {
             buildConfigField("String", "NODE_CHAIN_ARG", "\"-testnet\"")
             buildConfigField("String", "DATADIR_NAME", "\"node-testnet\"")
             buildConfigField("String", "BECH32_HRP", "\"tb\"")
-            buildConfigField("int", "P2P_PORT", "18333")
-            buildConfigField("int", "RPC_PORT", "18332")
+            buildConfigField("int", "P2P_PORT", "28333")
+            buildConfigField("int", "RPC_PORT", "28332")
             buildConfigField("String", "DEFAULT_THEME", "\"red\"")
             buildConfigField("boolean", "IS_TESTNET", "true")
+            buildConfigField("String", "DEFAULT_WALLET", "\"elektrontestnet\"")
         }
     }
 
