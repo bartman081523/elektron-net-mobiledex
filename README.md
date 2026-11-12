@@ -11,29 +11,21 @@
 
 ## 0. About this repository (`elektron-net-mobiledex`)
 
-This repository is the **DEX development line** of the Elektron Net Android wallet. It was split off from [`elektron-net-mobile`](https://github.com/kutlusoy/elektron-net-mobile) at commit `4a93435` (tag `v4.0.6-m0.2.1`) and keeps the full history of that repository.
+This repository is the **DEX line** of the Elektron Net Android app. It started as a copy of [`elektron-net-mobile`](https://github.com/kutlusoy/elektron-net-mobile) at commit `4a93435` (tag `v4.0.6-m0.2.1`), keeps that history, and is developed independently from there on.
 
 | | `elektron-net-mobile` | `elektron-net-mobiledex` (this repository) |
 |---|---|---|
-| Purpose | Wallet-only release line | Wallet plus DEX (atomic swaps) development |
-| Scope | Full-node wallet, no trading features | Everything in the wallet line, plus swap and trading features |
-| Releases | Official wallet releases | Experimental builds, no official release channel |
-| Default branch | `main` | `dex` |
+| Purpose | Wallet-only line | Wallet plus DEX (atomic swaps) |
 | Application ID | `org.elektronnet.mobile` (testnet `org.elektronnet.mobiletestnet`) | `org.elektronnet.mobiledex` (testnet `org.elektronnet.mobiledextestnet`) |
 | App name | Elektron | Elektron DEX |
-| Contributions | Maintainer only | Open to the DEX contributors |
+| Default branch | `main` | `dex` |
+| Releases | Official wallet releases | Own release cycle |
 
-- `elektron-net-mobile` is the **upstream**. Wallet changes land there first and are merged into this repository with `git fetch upstream && git merge upstream/main`.
-- DEX features stay in this repository. Pull requests that add DEX code to `elektron-net-mobile` are not accepted.
-- Changes that also benefit the wallet-only line (fixes, translations) SHOULD be proposed to `elektron-net-mobile` separately and without any DEX code.
-- Both apps have different application IDs and install side by side on one phone. Each keeps its own node data, so two running nodes use separate storage and move to free ports if needed.
-- Everything below describes the wallet as it is in the upstream. Sections about releases, signing and distribution refer to `elektron-net-mobile`.
-
-```bash
-git remote add upstream https://github.com/kutlusoy/elektron-net-mobile.git
-git fetch upstream
-git merge upstream/main
-```
+- Both repositories are developed independently. Neither is the upstream of the other, and no regular merging between them is planned.
+- The common upstream of both is the node [`elektron-net`](https://github.com/kutlusoy/elektron-net), which is fetched on every build (section 4).
+- The two apps use different application IDs. They can be installed and run side by side, but do not have to be. Each keeps its own node data, and the node moves to free ports when the default ones are taken.
+- A fix that is useful in both lines has to be applied in each repository on its own, for example as a cherry-pick.
+- Everything below was written for the wallet and applies to this app as long as the code has not diverged. Sections about releases, signing and distribution describe `elektron-net-mobile`.
 
 ## 1. What this is
 
