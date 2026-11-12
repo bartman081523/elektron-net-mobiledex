@@ -9,6 +9,29 @@
 
 ---
 
+## 0. About this repository (`elektron-net-mobiledex`)
+
+This repository is the **DEX development line** of the Elektron Net Android wallet. It was split off from [`elektron-net-mobile`](https://github.com/kutlusoy/elektron-net-mobile) at commit `4a93435` (tag `v4.0.6-m0.2.1`) and keeps the full history of that repository.
+
+| | `elektron-net-mobile` | `elektron-net-mobiledex` (this repository) |
+|---|---|---|
+| Purpose | Wallet-only release line | Wallet plus DEX (atomic swaps) development |
+| Scope | Full-node wallet, no trading features | Everything in the wallet line, plus swap and trading features |
+| Releases | Official wallet releases | Experimental builds, no official release channel |
+| Default branch | `main` | `dex` |
+| Contributions | Maintainer only | Open to the DEX contributors |
+
+- `elektron-net-mobile` is the **upstream**. Wallet changes land there first and are merged into this repository with `git fetch upstream && git merge upstream/main`.
+- DEX features stay in this repository. Pull requests that add DEX code to `elektron-net-mobile` are not accepted.
+- Changes that also benefit the wallet-only line (fixes, translations) SHOULD be proposed to `elektron-net-mobile` separately and without any DEX code.
+- Everything below describes the wallet as it is in the upstream. Sections about releases, signing and distribution refer to `elektron-net-mobile`.
+
+```bash
+git remote add upstream https://github.com/kutlusoy/elektron-net-mobile.git
+git fetch upstream
+git merge upstream/main
+```
+
 ## 1. What this is
 
 `elektron-net-mobile` is a non-custodial Android wallet for Elektron Net (ELEK) that runs its own complete node. There is no server, no Electrum backend and no third-party indexer in the path: the phone validates the chain itself and signs with keys that never leave the device.
