@@ -19,11 +19,14 @@ This repository is the **DEX development line** of the Elektron Net Android wall
 | Scope | Full-node wallet, no trading features | Everything in the wallet line, plus swap and trading features |
 | Releases | Official wallet releases | Experimental builds, no official release channel |
 | Default branch | `main` | `dex` |
+| Application ID | `org.elektronnet.mobile` (testnet `org.elektronnet.mobiletestnet`) | `org.elektronnet.mobiledex` (testnet `org.elektronnet.mobiledextestnet`) |
+| App name | Elektron | Elektron DEX |
 | Contributions | Maintainer only | Open to the DEX contributors |
 
 - `elektron-net-mobile` is the **upstream**. Wallet changes land there first and are merged into this repository with `git fetch upstream && git merge upstream/main`.
 - DEX features stay in this repository. Pull requests that add DEX code to `elektron-net-mobile` are not accepted.
 - Changes that also benefit the wallet-only line (fixes, translations) SHOULD be proposed to `elektron-net-mobile` separately and without any DEX code.
+- Both apps have different application IDs and install side by side on one phone. Each keeps its own node data, so two running nodes use separate storage and move to free ports if needed.
 - Everything below describes the wallet as it is in the upstream. Sections about releases, signing and distribution refer to `elektron-net-mobile`.
 
 ```bash

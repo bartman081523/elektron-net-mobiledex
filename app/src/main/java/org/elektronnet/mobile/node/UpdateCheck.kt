@@ -39,8 +39,8 @@ sealed interface UpdateResult {
 }
 
 object UpdateCheck {
-    const val RELEASES_URL = "https://api.github.com/repos/kutlusoy/elektron-net-mobile/releases?per_page=30"
-    const val RELEASE_URL = "https://github.com/kutlusoy/elektron-net-mobile/releases/tag/"
+    const val RELEASES_URL = "https://api.github.com/repos/kutlusoy/elektron-net-mobiledex/releases?per_page=30"
+    const val RELEASE_URL = "https://github.com/kutlusoy/elektron-net-mobiledex/releases/tag/"
     const val INTERVAL_MS = 24L * 60 * 60 * 1000
     const val RETRY_MS = 60L * 60 * 1000
 

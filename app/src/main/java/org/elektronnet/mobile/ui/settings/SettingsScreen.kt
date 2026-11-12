@@ -187,7 +187,7 @@ fun SettingsScreen(
             fingerprint?.let { Text(stringResource(R.string.settings_signing, it), color = muted, fontFamily = ElektronMono, style = MaterialTheme.typography.bodySmall) }
             Text(stringResource(R.string.about_slogan), color = muted, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
             listOf(
-                R.string.about_link_repo to "https://github.com/kutlusoy/elektron-net-mobile",
+                R.string.about_link_repo to "https://github.com/kutlusoy/elektron-net-mobiledex",
                 R.string.about_link_node to "https://github.com/kutlusoy/elektron-net",
                 R.string.about_link_whitepaper to "https://github.com/kutlusoy/elektron-net/blob/main/WHITEPAPER.md",
             ).forEach { (label, url) ->

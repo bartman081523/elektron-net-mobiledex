@@ -57,8 +57,8 @@ android {
     productFlavors {
         create("mainnet") {
             dimension = "chain"
-            applicationId = "org.elektronnet.mobile"
-            resValue("string", "app_name", "Elektron")
+            applicationId = "org.elektronnet.mobiledex"
+            resValue("string", "app_name", "Elektron DEX")
             manifestPlaceholders["uriScheme"] = "elek"
             buildConfigField("String", "CHAIN", "\"main\"")
             buildConfigField("String", "NODE_CHAIN_ARG", "\"\"")
@@ -71,8 +71,8 @@ android {
         }
         create("tnet") {
             dimension = "chain"
-            applicationId = "org.elektronnet.mobiletestnet"
-            resValue("string", "app_name", "Elektron (T)")
+            applicationId = "org.elektronnet.mobiledextestnet"
+            resValue("string", "app_name", "Elektron DEX (T)")
             manifestPlaceholders["uriScheme"] = "elektest"
             buildConfigField("String", "CHAIN", "\"testnet\"")
             buildConfigField("String", "NODE_CHAIN_ARG", "\"-testnet\"")
