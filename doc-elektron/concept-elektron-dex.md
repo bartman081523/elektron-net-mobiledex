@@ -146,6 +146,7 @@ M1 is the next step and only needs the branch that already exists in the wallet 
 - `origin` is the personal fork `bartman081523/elektron-net-mobiledex`, `upstream` is `kutlusoy/elektron-net-mobiledex`. Work happens on topic branches, `dex` stays close to upstream.
 - Changes reach the upstream repository through pull requests. The maintainer decides what lands.
 - There is no regular merge with `elektron-net-mobile`. A fix useful in both lines is cherry-picked into each repository on its own.
+- Both apps can run side by side on one phone: different application IDs, different data directories, node ports move to a free one, and this line's swap engine uses its own JSON-RPC port (`7823`) instead of the wallet line's `7821`.
 - Releases are built and signed by this line with its own key; the wallet key MUST NOT be reused.
 - Every release publishes the complete corresponding source of the exact build (tag plus archive) and `SHA256SUMS.txt`.
 
