@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// This file is part of the Elektron DEX line, see LICENSE-GPL-3.0 and doc-elektron/concept-elektron-dex.md.
+
 package org.elektronnet.mobile.ui.tools
 
 import androidx.compose.foundation.background
