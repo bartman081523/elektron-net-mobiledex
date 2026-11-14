@@ -137,6 +137,8 @@ The app lock stays biometry-first: a PIN or pattern is only the fallback for pho
 | M3 | Hot-wallet guardrails | caps enforced in the swap path, withdrawal gated by a strong biometric, caps unit tested | a swap above the cap succeeds |
 | M4 | Release pipeline | own signing key, GPL source archive per release, Gleec notification recorded | an artifact without corresponding source |
 
+**Status, November 14, 2026:** the swap layer is ported from `elektron-net-mobile` branch `feat/kdf-swap-integration` (KDF client, supervisor, pruner, VWAP, swap screen, withdrawal and address bridge). `./gradlew assembleTnetDebug` produces an APK that contains `libkdfbin.so`; the unit tests pass. The two-device testnet swap is the remaining M1 step. The engine binary itself still has no build script, see [`build-kdf-engine.md`](./build-kdf-engine.md).
+
 M1 is the next step and only needs the branch that already exists in the wallet repository.
 
 ## 9. Fork workflow
