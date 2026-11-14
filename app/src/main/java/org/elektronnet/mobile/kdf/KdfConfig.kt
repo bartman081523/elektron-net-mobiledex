@@ -10,7 +10,7 @@ import org.elektronnet.mobile.wallet.SystemEntropy
 
 object KdfConfig {
     const val DEFAULT_RPC_HOST = "127.0.0.1"
-    const val DEFAULT_RPC_PORT = 7821
+    const val DEFAULT_RPC_PORT = 7823
     const val NETID_TESTNET = 8888
     const val NETID_MAINNET = 2
     const val DEFAULT_SEEDNODE = "wss://elektron-market.onrender.com"

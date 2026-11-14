@@ -224,7 +224,10 @@ object NodeHost {
         val datadir = File(app.filesDir, ChainConfig.datadirName)
         datadir.mkdirs()
         this.datadir = datadir
-        val extraArgs = if (ChainConfig.isTestnet) listOf("-addnode=127.0.0.1:18333") else emptyList()
+        // On the isolated testnet the phone is its own peer source: the wallet
+        // line binds this port first and this node finds it here. If this app
+        // owns the port itself, the connection attempt is a no-op.
+        val extraArgs = if (ChainConfig.isTestnet) listOf("-addnode=127.0.0.1:${ChainConfig.p2pPort}") else emptyList()
         val config = NodeConfig(
             binary = File(app.applicationInfo.nativeLibraryDir, "libelektrond.so"),
             datadir = datadir,
