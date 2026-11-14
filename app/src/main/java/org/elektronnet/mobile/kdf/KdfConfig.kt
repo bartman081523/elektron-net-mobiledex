@@ -86,6 +86,16 @@ object KdfConfig {
     /**
      * Generates a policy-compliant RPC password with prefix "K_" followed by 16 random hex bytes.
      */
+    /**
+     * Per-install passphrase for the swap wallet. A fixed constant here would
+     * give every installation on every phone the same keys, so the hot wallet
+     * has to be unique per device.
+     */
+    fun generateKdfPassphrase(entropy: SystemEntropy = SystemEntropy()): String {
+        val bytes = entropy.draw(32)
+        return "elkkdf1_" + bytes.joinToString("") { "%02x".format(it) }
+    }
+
     fun generateRpcPassword(entropy: SystemEntropy = SystemEntropy()): String {
         while (true) {
             val bytes = entropy.draw(16)
@@ -105,6 +115,7 @@ object KdfConfig {
         rpcPassword: String,
         rpcPort: Int = DEFAULT_RPC_PORT,
         seednode: String = DEFAULT_SEEDNODE,
+        extraSeednodes: List<String> = emptyList(),
     ): Map<String, Any?> {
         val dbDir = File(kdfDir, "db").apply { mkdirs() }
         val netid = if (isTestnet) NETID_TESTNET else NETID_MAINNET
@@ -244,7 +255,7 @@ object KdfConfig {
             listOf("127.0.0.1", seednode.trim().ifEmpty { DEFAULT_SEEDNODE })
         } else {
             listOf(seednode.trim().ifEmpty { DEFAULT_SEEDNODE })
-        }
+        } + extraSeednodes
 
         return linkedMapOf(
             "gui" to "elektron-net",

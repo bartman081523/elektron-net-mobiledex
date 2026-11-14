@@ -41,6 +41,9 @@ class KdfSupervisor(
     var rpcPassword: String = ""
         private set
 
+    @Volatile
+    private var kdfPassphrase: String = ""
+
     val client: KdfClient = KdfClient(
         rpcHost = KdfConfig.DEFAULT_RPC_HOST,
         rpcPort = rpcPort,
@@ -72,8 +75,10 @@ class KdfSupervisor(
             try {
                 val parsed = Json.parse(secretsFile.readText()) as? Map<*, *>
                 val pw = parsed?.get("rpc_password")?.toString().orEmpty()
-                if (KdfConfig.isPasswordPolicyOk(pw)) {
+                val phrase = parsed?.get("kdf_passphrase")?.toString().orEmpty()
+                if (KdfConfig.isPasswordPolicyOk(pw) && phrase.length >= 32) {
                     rpcPassword = pw
+                    kdfPassphrase = phrase
                     return
                 }
             } catch (e: Exception) {
@@ -81,11 +86,12 @@ class KdfSupervisor(
             }
         }
         rpcPassword = KdfConfig.generateRpcPassword()
+        kdfPassphrase = KdfConfig.generateKdfPassphrase()
         persistSecrets()
     }
 
     private fun persistSecrets() {
-        val data = mapOf("rpc_password" to rpcPassword)
+        val data = mapOf("rpc_password" to rpcPassword, "kdf_passphrase" to kdfPassphrase)
         secretsFile.writeText(Json.stringify(data))
     }
 
@@ -134,21 +140,32 @@ class KdfSupervisor(
                 return
             }
 
-            // Derive passphrase from seed or fallback to persisted random
+            // Derive from the wallet seed when the app provides one, otherwise
+            // use this install's own persisted passphrase. A shared constant
+            // would give every phone the same swap wallet.
             val seed = seedPhraseProvider()
             val passphrase = if (!seed.isNullOrBlank()) {
                 KdfConfig.deriveKdfPassphrase(seed)
             } else {
-                "elkkdf1_default_seedless_identity"
+                kdfPassphrase
             }
 
-            // Write MM2.json
+            // Write MM2.json. peers.txt holds extra seednodes, one per line:
+            // a mesh without a reachable public seed still needs a meeting
+            // point, and on a LAN the other phone is one.
+            val extraPeers = File(kdfDir, "peers.txt")
+                .takeIf { it.isFile }
+                ?.readLines()
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() && !it.startsWith("#") }
+                .orEmpty()
             val conf = KdfConfig.buildConfig(
                 kdfDir = kdfDir,
                 isTestnet = ChainConfig.isTestnet,
                 passphrase = passphrase,
                 rpcPassword = rpcPassword,
                 rpcPort = rpcPort,
+                extraSeednodes = extraPeers,
             )
             confFile.writeText(Json.stringify(conf))
 
