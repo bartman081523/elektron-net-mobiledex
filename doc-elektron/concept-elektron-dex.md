@@ -159,3 +159,30 @@ M1 is the next step and only needs the branch that already exists in the wallet 
 | Q3 | Does a lawyer accept the process boundary as separation between the MIT wallet and the GPL-3.0 DEX? | If not, only the clean-room line removes the question |
 | Q4 | Who implements the clean-room line, given that the current contributors have read the engine source? | A clean room needs an implementer who has not; see the clean-room document |
 | Q5 | Which public channels may be used for the Gleec notification? | Condition (c) needs a provable delivery |
+
+## 6.5 P2P discovery without adb
+
+The engine finds its peers through `kdf/net.txt`, one key per line:
+
+```
+seed=192.168.178.21        # host relay (bootstrap seed)
+seed=192.168.178.26        # the other phone
+electrum=127.0.0.1:50005   # indexer endpoint
+relay=192.168.178.26       # optional: serve as a P2P relay on this address
+```
+
+- `seed` lines become `seednodes`; a phone address is dialed directly on the
+  netid port (43331 for testnet), so two phones meet on the LAN without adb
+  port bridges.
+- `relay=<ip>` sets `i_am_seed`, `is_bootstrap_node=false` and `myipaddr`, so
+  the phone listens on its own address and joins the relay mesh. This is what
+  makes a client-to-client order book possible: with two relays (the host and
+  a phone) the topic mesh is no longer empty.
+- `electrum` replaces the hardcoded loopback endpoint. Without a value the
+  engine falls back to `127.0.0.1:50005`, which needs an `adb reverse` on a
+  LAN install.
+
+The order book itself is read through MMRPC 2.0 (`orderbook` with
+`base`/`rel`), because the legacy call returns an empty list for replicated
+orders on this engine build while `orderbook_depth` counts them. The client
+falls back to the legacy shape if a daemon does not speak 2.0.

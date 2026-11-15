@@ -95,6 +95,37 @@ class KdfSupervisor(
         secretsFile.writeText(Json.stringify(data))
     }
 
+    private data class NetworkProfile(
+        val seeds: List<String> = emptyList(),
+        val electrum: List<String> = emptyList(),
+        val relayIp: String? = null,
+    )
+
+    /**
+     * Reads kdf/net.txt. Unknown keys are ignored on purpose, so a future
+     * option does not stop an older build from starting.
+     */
+    private fun readNetworkProfile(): NetworkProfile {
+        val file = File(kdfDir, "net.txt")
+        if (!file.isFile) return NetworkProfile()
+        val seeds = mutableListOf<String>()
+        val electrum = mutableListOf<String>()
+        var relay: String? = null
+        for (raw in file.readLines()) {
+            val line = raw.trim()
+            if (line.isEmpty() || line.startsWith("#")) continue
+            val key = line.substringBefore('=', "").trim().lowercase()
+            val value = line.substringAfter('=', "").trim()
+            if (value.isEmpty()) continue
+            when (key) {
+                "seed", "seednode", "peer" -> seeds += value
+                "electrum", "electrum_server" -> electrum += value
+                "relay", "relay_ip" -> relay = value
+            }
+        }
+        return NetworkProfile(seeds = seeds, electrum = electrum, relayIp = relay)
+    }
+
     fun binary(): File = File(context.applicationInfo.nativeLibraryDir, "libkdfbin.so")
 
     fun isBinaryAvailable(): Boolean {
@@ -150,15 +181,21 @@ class KdfSupervisor(
                 kdfPassphrase
             }
 
-            // Write MM2.json. peers.txt holds extra seednodes, one per line:
-            // a mesh without a reachable public seed still needs a meeting
-            // point, and on a LAN the other phone is one.
-            val extraPeers = File(kdfDir, "peers.txt")
-                .takeIf { it.isFile }
-                ?.readLines()
-                ?.map { it.trim() }
-                ?.filter { it.isNotEmpty() && !it.startsWith("#") }
-                .orEmpty()
+            // net.txt is the network profile for this install, one key per
+            // line: seed=<ip|url> (repeatable), electrum=<host:port>
+            // (repeatable), relay=<ip> to serve as a P2P relay ourselves.
+            // peers.txt (bare seed lines) stays supported for older setups.
+            val net = readNetworkProfile()
+            val extraPeers = if (net.seeds.isNotEmpty()) {
+                net.seeds
+            } else {
+                File(kdfDir, "peers.txt")
+                    .takeIf { it.isFile }
+                    ?.readLines()
+                    ?.map { it.trim() }
+                    ?.filter { it.isNotEmpty() && !it.startsWith("#") }
+                    .orEmpty()
+            }
             val conf = KdfConfig.buildConfig(
                 kdfDir = kdfDir,
                 isTestnet = ChainConfig.isTestnet,
@@ -166,6 +203,8 @@ class KdfSupervisor(
                 rpcPassword = rpcPassword,
                 rpcPort = rpcPort,
                 extraSeednodes = extraPeers,
+                electrumServers = net.electrum.ifEmpty { KdfConfig.TELEK_ELECTRUM_SERVERS },
+                relayIp = net.relayIp,
             )
             confFile.writeText(Json.stringify(conf))
 
@@ -243,7 +282,9 @@ class KdfSupervisor(
 
     private fun activateDefaultCoins() {
         if (ChainConfig.isTestnet) {
-            val electrumServers = listOf("127.0.0.1:50005")
+            // Use the profile's indexer, not a hardcoded loopback: on a LAN
+            // install the electrs server is another host.
+            val electrumServers = readNetworkProfile().electrum.ifEmpty { KdfConfig.TELEK_ELECTRUM_SERVERS }
             try {
                 client.enableElectrum("tELEK", electrumServers)
                 output.add("tELEK activated on KDF daemon")
