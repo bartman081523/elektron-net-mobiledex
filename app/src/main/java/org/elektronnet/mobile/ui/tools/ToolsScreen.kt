@@ -53,13 +53,11 @@ fun ToolsScreen(onClose: () -> Unit, start: ToolsPage = ToolsPage.Hub, scanSigne
             Hint(stringResource(R.string.tools_intro))
             val watchOnly = NodeHost.isWatchOnly()
             if (!watchOnly) ToolEntry(R.string.escrow_title, R.string.tools_escrow_desc) { page = Page.Escrows }
-            ToolEntry(R.string.swap_title, R.string.tools_swap_desc) { page = Page.Swap }
             ToolEntry(R.string.psbt_title, R.string.tools_psbt_desc) { page = Page.Psbt }
             ToolEntry(R.string.sweep_title, R.string.tools_sweep_desc) { page = Page.Sweep }
             if (!watchOnly) ToolEntry(R.string.msg_title, R.string.tools_msg_desc) { page = Page.Messages }
             if (watchOnly) Hint(stringResource(R.string.watch_tools_hint))
         }
-        page == Page.Swap -> SwapScreen(onBack = backToHub)
         page == Page.Escrows -> EscrowListScreen(onBack = { page = Page.Hub }, onOpen = { escrowId = it; page = Page.EscrowDetail })
         page == Page.EscrowDetail -> EscrowDetailScreen(
             id = escrowId,

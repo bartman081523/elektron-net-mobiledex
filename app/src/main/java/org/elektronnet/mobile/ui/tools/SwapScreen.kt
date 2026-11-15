@@ -85,7 +85,7 @@ private val MAINNET_PAIRS = listOf(
 )
 
 @Composable
-fun SwapScreen(onBack: () -> Unit) {
+fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val kdf = NodeHost.kdfSupervisor
@@ -147,7 +147,7 @@ fun SwapScreen(onBack: () -> Unit) {
         }
     }
 
-    ToolPage(title = stringResource(R.string.swap_title), onBack = onBack) {
+    ToolPage(title = stringResource(R.string.swap_title), onBack = onBack, showBack = showBack) {
         // Status & Lifecycle Card
         Card(
             modifier = Modifier.fillMaxWidth(),

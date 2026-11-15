@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -73,15 +75,22 @@ private enum class Overlay { None, Tools, Messages, Sweep, Send, Receive, Detail
 private const val RECENT_COUNT = 8
 
 private enum class Tab(val label: Int, val icon: ImageVector) {
+    Market(R.string.tab_market, Icons.Filled.ShoppingCart),
+    Swap(R.string.tab_swap, Icons.Filled.Refresh),
     Wallet(R.string.tab_wallet, Icons.Filled.Home),
+    More(R.string.tab_more, Icons.Filled.Menu),
+    // Pages without a slot in the bottom bar, reached from More.
     History(R.string.tab_history, Icons.AutoMirrored.Filled.List),
     Node(R.string.tab_node, org.elektronnet.mobile.ui.theme.NodeIcon),
     Settings(R.string.tab_settings, Icons.Filled.Settings),
 }
 
+// The DEX shows trading first; the wallet pages are one tap away under More.
+private val PRIMARY_TABS = listOf(Tab.Market, Tab.Swap, Tab.Wallet, Tab.More)
+
 @Composable
 fun AppRoot(onStart: () -> Unit, onStop: () -> Unit, onPause: () -> Unit, onResume: () -> Unit, onBiometric: (Boolean) -> Unit, onRestart: () -> Unit = {}, onRestartAll: () -> Unit = {}) {
-    var tab by rememberSaveable { mutableStateOf(Tab.Wallet.ordinal) }
+    var tab by rememberSaveable { mutableStateOf(Tab.Market.ordinal) }
     var showSoon by remember { mutableStateOf(false) }
     var overlayName by rememberSaveable { mutableStateOf(Overlay.None.name) }
     val overlay = runCatching { Overlay.valueOf(overlayName) }.getOrDefault(Overlay.None)
@@ -216,7 +225,7 @@ fun AppRoot(onStart: () -> Unit, onStop: () -> Unit, onPause: () -> Unit, onResu
         },
         bottomBar = {
             if (shell) PillNavBar(
-                items = Tab.entries.map { Triple(stringResource(it.label), it.icon, it.ordinal) },
+                items = PRIMARY_TABS.map { Triple(stringResource(it.label), it.icon, it.ordinal) },
                 selected = tab,
                 onSelect = {
                     tab = it
@@ -306,12 +315,25 @@ fun AppRoot(onStart: () -> Unit, onStop: () -> Unit, onPause: () -> Unit, onResu
             if (overlay != Overlay.None) return@Box
             Column {
             BrandHeader(compact = true, showTagline = true, onHome = {
-                tab = Tab.Wallet.ordinal
+                tab = Tab.Market.ordinal
                 openTx = null
                 NodeHost.incomingUri = null
             })
             Box(modifier = Modifier.weight(1f)) {
             when (Tab.entries[tab]) {
+                Tab.Market -> org.elektronnet.mobile.ui.market.MarketScreen(
+                    onOpenSwap = { tab = Tab.Swap.ordinal },
+                )
+                Tab.Swap -> org.elektronnet.mobile.ui.tools.SwapScreen(
+                    onBack = { tab = Tab.Market.ordinal },
+                    showBack = false,
+                )
+                Tab.More -> org.elektronnet.mobile.ui.more.MoreScreen(
+                    onOpenHistory = { tab = Tab.History.ordinal },
+                    onOpenNode = { tab = Tab.Node.ordinal },
+                    onOpenSettings = { tab = Tab.Settings.ordinal },
+                    onOpenTools = { show(Overlay.Tools) },
+                )
                 Tab.Wallet -> if (!walletReady) NoWalletCard(onCreate = { show(Overlay.AddWallet) }, onTools = { show(Overlay.Tools) }) else Column {
                     WalletSwitcher(
                         onDetails = { show(Overlay.Details) },
