@@ -54,6 +54,7 @@ An **import** derives and watches the whole keystore inside the node wallet. No 
 ## 5. Verification
 
 - `ElectrumWalletParserTest` (5 tests) and `ElectrumSeedTest` (4 tests) run green in this line; they cover the `BIE1` storage decryption, seed version detection, `pw_decode`, and the imported-keys path.
+- **Independent cross-check:** two seeds were re-derived with Python's stdlib only (`hmac` + `hashlib.pbkdf2_hmac`). The version prefixes came out as `1000` (segwit) and `0117` (standard), and both PBKDF2 seeds (empty passphrase and `my_password`) matched the Kotlin vectors byte for byte. The vectors are therefore Electrum's, not the implementation's own.
 - `WalletRestoreTest` in the wallet line covers the full restore; the DEX line reuses the same `WalletRestore`.
 - Build: `assembleTnetDebug` succeeds with the importer included.
 
