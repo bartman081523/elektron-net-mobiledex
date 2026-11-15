@@ -22,4 +22,26 @@ object Descriptors {
     }
 
     private fun path(masterKey: String, coinType: Int, chain: Int) = "wpkh($masterKey/84h/${coinType}h/0h/$chain/*)"
+
+    /**
+     * Electrum derives its own way: native SegWit from m/0'/0 and m/0'/1,
+     * legacy from m/0 and m/1. BIP84 paths would find nothing on an Electrum
+     * backup, so the import has to use these prefixes.
+     */
+    fun forElectrumSeed(masterKey: String, type: ElectrumSeedType): List<DescriptorSpec> {
+        val specs = mutableListOf<DescriptorSpec>()
+        when (type) {
+            ElectrumSeedType.Segwit, ElectrumSeedType.TwoFactorSegwit -> {
+                specs += DescriptorSpec("wpkh($masterKey/0h/0/*)", active = true, internal = false, legacy = false)
+                specs += DescriptorSpec("wpkh($masterKey/0h/1/*)", active = true, internal = true, legacy = false)
+                specs += DescriptorSpec("pkh($masterKey/0h/0/*)", active = false, internal = false, legacy = true, signingOnly = true)
+            }
+            ElectrumSeedType.Standard, ElectrumSeedType.TwoFactor -> {
+                specs += DescriptorSpec("pkh($masterKey/0/*)", active = true, internal = false, legacy = true)
+                specs += DescriptorSpec("pkh($masterKey/1/*)", active = true, internal = true, legacy = true)
+                specs += DescriptorSpec("wpkh($masterKey/0/*)", active = false, internal = false, legacy = false, signingOnly = true)
+            }
+        }
+        return specs
+    }
 }
