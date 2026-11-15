@@ -167,8 +167,19 @@ class KdfClient(
         return res["result"]?.toString() ?: res.toString()
     }
 
+    /**
+     * Order book from the daemon. The legacy `orderbook` call returns an empty
+     * list for replicated orders on this engine build while `orderbook_depth`
+     * counts them; the MMRPC 2.0 variant returns the same book correctly, so it
+     * is tried first and the legacy shape stays as a fallback.
+     */
     fun orderbook(base: String, rel: String): Orderbook {
-        val res = call("orderbook", mapOf("base" to base, "rel" to rel))
+        val res: Map<*, *> = try {
+            val reply = callV2("orderbook", mapOf("base" to base, "rel" to rel))
+            reply["result"] as? Map<*, *> ?: emptyMap<Any, Any>()
+        } catch (e: Exception) {
+            call("orderbook", mapOf("base" to base, "rel" to rel))
+        }
         val asks = (res["asks"] as? List<*>)?.mapNotNull { parseOrderEntry(it, isAsk = true) }.orEmpty()
         val bids = (res["bids"] as? List<*>)?.mapNotNull { parseOrderEntry(it, isAsk = false) }.orEmpty()
         return Orderbook(base = base, rel = rel, asks = asks, bids = bids)
@@ -379,16 +390,26 @@ class KdfClient(
      * on the ask side and the rel amount on the bid side, so the side matters
      * when only that field is present.
      */
+    /** Legacy numbers are bare scalars, MMRPC 2.0 wraps them in {"decimal": "..."}. */
+    private fun decimalField(value: Any?): BigDecimal? = when (value) {
+        null -> null
+        is Map<*, *> -> value["decimal"]?.toString()?.let { runCatching { BigDecimal(it) }.getOrNull() }
+        else -> toDecimal(value)
+    }
+
     private fun parseOrderEntry(obj: Any?, isAsk: Boolean): OrderEntry? {
         val m = obj as? Map<*, *> ?: return null
-        val price = toDecimal(m["price"])
-        val minVol = toDecimal(m["min_volume"] ?: m["minvolume"] ?: BigDecimal.ZERO)
-        val explicitBase = m["base_max_volume"]?.let(::toDecimal)?.takeIf { it > BigDecimal.ZERO }
-        val explicitRel = m["rel_max_volume"]?.let(::toDecimal)?.takeIf { it > BigDecimal.ZERO }
-        val bookVolume = toDecimal(m["maxvolume"] ?: m["volume"])
+        val price = decimalField(m["price"]) ?: BigDecimal.ZERO
+        val minVol = decimalField(m["base_min_volume"] ?: m["min_volume"] ?: m["minvolume"]) ?: BigDecimal.ZERO
+        val explicitBase = decimalField(m["base_max_volume"])?.takeIf { it > BigDecimal.ZERO }
+        val explicitRel = decimalField(m["rel_max_volume"])?.takeIf { it > BigDecimal.ZERO }
+        val bookVolume = decimalField(m["maxvolume"] ?: m["volume"]) ?: BigDecimal.ZERO
         val baseVolume = explicitBase ?: if (isAsk) bookVolume else if (price > BigDecimal.ZERO) bookVolume.divide(price, 10, java.math.RoundingMode.HALF_UP) else BigDecimal.ZERO
         val relVolume = explicitRel ?: (price * baseVolume)
-        val address = m["address"]?.toString().orEmpty()
+        val address = when (val a = m["address"]) {
+            is Map<*, *> -> a["address_data"]?.toString().orEmpty()
+            else -> a?.toString().orEmpty()
+        }
         val uuid = m["uuid"]?.toString().orEmpty()
         return OrderEntry(
             price = price,

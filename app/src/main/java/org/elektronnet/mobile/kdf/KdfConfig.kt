@@ -116,6 +116,8 @@ object KdfConfig {
         rpcPort: Int = DEFAULT_RPC_PORT,
         seednode: String = DEFAULT_SEEDNODE,
         extraSeednodes: List<String> = emptyList(),
+        electrumServers: List<String> = TELEK_ELECTRUM_SERVERS,
+        relayIp: String? = null,
     ): Map<String, Any?> {
         val dbDir = File(kdfDir, "db").apply { mkdirs() }
         val netid = if (isTestnet) NETID_TESTNET else NETID_MAINNET
@@ -144,7 +146,7 @@ object KdfConfig {
                     "rpcport" to ChainConfig.rpcPort,
                     "mm2" to 1,
                     "protocol" to mapOf("type" to "UTXO"),
-                    "electrum" to TELEK_ELECTRUM_SERVERS.map { mapOf("url" to it, "protocol" to "TCP") },
+                    "electrum" to electrumServers.map { mapOf("url" to it, "protocol" to "TCP") },
                 ),
                 mapOf(
                     "coin" to "tBTC",
@@ -169,7 +171,7 @@ object KdfConfig {
                     "mm2" to 1,
                     "is_testnet" to true,
                     "protocol" to mapOf("type" to "UTXO"),
-                    "electrum" to TBTC_ELECTRUM_SERVERS.map { mapOf("url" to it, "protocol" to "TCP") },
+                    "electrum" to electrumServers.map { mapOf("url" to it, "protocol" to "TCP") },
                 ),
                 mapOf(
                     "coin" to "SEPOLIAETH",
@@ -257,7 +259,7 @@ object KdfConfig {
             listOf(seednode.trim().ifEmpty { DEFAULT_SEEDNODE })
         } + extraSeednodes
 
-        return linkedMapOf(
+        val config = linkedMapOf<String, Any?>(
             "gui" to "elektron-net",
             "netid" to netid,
             "rpcip" to DEFAULT_RPC_HOST,
@@ -268,5 +270,13 @@ object KdfConfig {
             "seednodes" to seednodes,
             "coins" to coins,
         )
+        if (!relayIp.isNullOrBlank()) {
+            // Turn the phone into a P2P relay that listens on its own address:
+            // needed so two phones can meet without a host seed in between.
+            config["i_am_seed"] = true
+            config["is_bootstrap_node"] = false
+            config["myipaddr"] = relayIp.trim()
+        }
+        return config
     }
 }
