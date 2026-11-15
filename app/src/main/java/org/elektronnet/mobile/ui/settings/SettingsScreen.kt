@@ -137,6 +137,13 @@ fun SettingsScreen(
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) { ExplorerSection(explorers, onExplorers) }
         }
+        SettingsCard(R.string.settings_dex) {
+            var kdfAutostart by remember { mutableStateOf(NodeHost.store?.kdfAutostart != false) }
+            ToggleRow(R.string.settings_kdf_autostart, R.string.settings_kdf_autostart_hint, kdfAutostart) {
+                kdfAutostart = it
+                NodeHost.store?.kdfAutostart = it
+            }
+        }
         SettingsCard(R.string.settings_security) {
             ToggleRow(R.string.settings_biometric, R.string.settings_biometric_hint, biometric, onBiometric)
             if (biometric) {

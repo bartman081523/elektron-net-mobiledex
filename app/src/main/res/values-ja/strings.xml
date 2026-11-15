@@ -997,4 +997,8 @@
     <string name="more_settings">Settings</string>
     <string name="more_settings_hint">Security, network, appearance, language</string>
     <string name="more_footer">Elektron DEX: the marketplace keeps the wallet one tap away.</string>
+    <string name="settings_dex">分散型取引所</string>
+    <string name="settings_kdf_autostart">アプリと一緒にスワップエンジンを起動</string>
+    <string name="settings_kdf_autostart_hint">オン：エンジンはアプリと同時に起動し、DEX ネットワークに参加してすべてのコイン（Electron、Bitcoin、Ethereum のテストネット）を有効にします。数秒かかり、停止するまで動作します。オフ：スワップ画面で自分で起動します。</string>
+    <string name="market_coins">%1$d コイン</string>
 </resources>

@@ -5,6 +5,7 @@ package org.elektronnet.mobile.ui.tools
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -57,6 +59,7 @@ import kotlinx.coroutines.withContext
 import org.elektronnet.mobile.ChainConfig
 import org.elektronnet.mobile.R
 import org.elektronnet.mobile.kdf.CoinBalance
+import org.elektronnet.mobile.kdf.KdfConfig
 import org.elektronnet.mobile.kdf.KdfState
 import org.elektronnet.mobile.kdf.MakerOrder
 import org.elektronnet.mobile.kdf.Orderbook
@@ -72,17 +75,27 @@ import org.elektronnet.mobile.ui.tools.copyText
 import org.elektronnet.mobile.ui.receive.QrView
 import org.elektronnet.mobile.service.NodeHost
 
-private val TESTNET_PAIRS = listOf(
-    "tELEK" to "tBTC",
-    "tELEK" to "SEPOLIAETH",
-    "tBTC" to "SEPOLIAETH",
-)
+// every pair the engine's coin set can trade, so a new coin shows up without
+// touching this screen
+private fun availablePairs(): List<Pair<String, String>> {
+    val tickers = KdfConfig.coinsFor(ChainConfig.isTestnet, emptyList()).map { it.ticker }
+    return tickers.flatMapIndexed { index, base ->
+        tickers.drop(index + 1).map { rel -> base to rel }
+    }
+}
 
-private val MAINNET_PAIRS = listOf(
-    "ELEK" to "BTC",
-    "ELEK" to "ETH",
-    "BTC" to "ETH",
-)
+/**
+ * The engine nests its reasons behind "<file>:<line>] " markers and answers with
+ * a JSON body; the last marker carries the sentence a user can act on.
+ */
+private fun readableError(message: String?): String {
+    var text = message.orEmpty()
+    text = text.substringAfter("\"error\":\"", text)
+    text = text.substringBeforeLast("\"", text)
+    text = text.replace("KDF RPC error HTTP 500: ", "")
+    text = text.split("] ").lastOrNull().orEmpty()
+    return text.trim().ifEmpty { text.trim() }
+}
 
 @Composable
 fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
@@ -90,9 +103,7 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
     val scope = rememberCoroutineScope()
     val kdf = NodeHost.kdfSupervisor
 
-    val availablePairs = remember {
-        if (ChainConfig.isTestnet) TESTNET_PAIRS else MAINNET_PAIRS
-    }
+    val availablePairs = remember { availablePairs() }
     var selectedPairIndex by remember { mutableIntStateOf(0) }
     val currentPair = availablePairs[selectedPairIndex]
     val base = currentPair.first
@@ -101,6 +112,7 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
     var orderbook by remember { mutableStateOf<Orderbook?>(null) }
     var baseBalance by remember { mutableStateOf<CoinBalance?>(null) }
     var relBalance by remember { mutableStateOf<CoinBalance?>(null) }
+    var coinBalances by remember { mutableStateOf<Map<String, CoinBalance>>(emptyMap()) }
     var myOrders by remember { mutableStateOf<List<MakerOrder>>(emptyList()) }
     var recentSwaps by remember { mutableStateOf<List<SwapStatus>>(emptyList()) }
 
@@ -127,10 +139,14 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
                 val rb = runCatching { client.myBalance(rel) }.getOrNull()
                 val ords = client.myOrders().makerOrders
                 val swaps = kdf.getRecentSwapsMerged(10)
+                val all = KdfConfig.coinsFor(ChainConfig.isTestnet, emptyList()).map { it.ticker }
+                    .mapNotNull { ticker -> runCatching { ticker to client.myBalance(ticker) }.getOrNull() }
+                    .toMap()
                 withContext(Dispatchers.Main) {
                     orderbook = ob
                     baseBalance = bb
                     relBalance = rb
+                    coinBalances = all
                     myOrders = ords
                     recentSwaps = swaps
                 }
@@ -249,6 +265,35 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
             }
         }
 
+        // all coins the engine holds, not only the selected pair
+        if (coinBalances.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                coinBalances.entries.forEach { (ticker, value) ->
+                    Surface(
+                        shape = MaterialTheme.shapes.large,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(ticker, style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                value.balance.toPlainString(),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         // Share Address Button
         OutlinedButton(
             onClick = { showShareAddressDialog = true },
@@ -361,7 +406,7 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
                                     }
                                 } catch (e: Exception) {
                                     withContext(Dispatchers.Main) {
-                                        errorMessage = e.message
+                                        errorMessage = readableError(e.message)
                                         isOperating = false
                                     }
                                 }
@@ -883,7 +928,7 @@ private fun WithdrawDialog(
                         inProgress = false
                         res.fold(
                             onSuccess = { txHash -> onSuccess(txHash) },
-                            onFailure = { err -> errorText = err.message ?: err.toString() },
+                            onFailure = { err -> errorText = readableError(err.message ?: err.toString()) },
                         )
                     }
                 },

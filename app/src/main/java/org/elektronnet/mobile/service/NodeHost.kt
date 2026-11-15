@@ -282,7 +282,28 @@ object NodeHost {
         cleanLogsIfDue()
         maintainWallets(snapshot)
         maintainRegistryPeers()
+        maybeAutostartKdf(snapshot)
         return snapshot
+    }
+
+    @Volatile
+    private var kdfAutostartDone = false
+
+    /**
+     * The DEX is useless while the engine sleeps, so it comes up with the app.
+     * Tried once per launch: a user who stops it from the Swap page keeps it off
+     * until the next start.
+     */
+    private fun maybeAutostartKdf(snapshot: org.elektronnet.mobile.runtime.RuntimeSnapshot) {
+        if (kdfAutostartDone) return
+        val supervisor = kdfSupervisor ?: return
+        val store = settings ?: return
+        if (!store.kdfAutostart) return
+        if (snapshot.status == null) return
+        if (supervisor.state != org.elektronnet.mobile.kdf.KdfState.Stopped) return
+        if (!supervisor.isBinaryAvailable()) return
+        kdfAutostartDone = true
+        supervisor.start()
     }
 
     @Volatile

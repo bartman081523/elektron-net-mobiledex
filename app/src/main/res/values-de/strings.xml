@@ -243,6 +243,9 @@
     <string name="send_fee_subtract_hint">Der Empfänger erhält den Betrag abzüglich der Gebühr. Du zahlst genau den eingegebenen Betrag.</string>
     <string name="send_fee_from_explorer">Einige Vorschläge stammen von deinem Block-Explorer, weil die Node noch keine Schätzung hat.</string>
     <string name="tx_open_explorer">Im Explorer öffnen</string>
+    <string name="settings_dex">Dezentrale Börse</string>
+    <string name="settings_kdf_autostart">Swap-Engine mit der App starten</string>
+    <string name="settings_kdf_autostart_hint">An: Die Engine startet mit der App, verbindet sich mit dem DEX-Netz und aktiviert alle Coins (Elektron-, Bitcoin- und Ethereum-Testnetz). Das dauert ein paar Sekunden und bleibt an, bis du sie stoppst. Aus: Du startest sie selbst auf der Tausch-Seite.</string>
     <string name="settings_security">Sicherheit</string>
     <string name="settings_biometric">App sperren</string>
     <string name="settings_biometric_hint">Beim Öffnen Fingerabdruck, Gesicht oder Sperre abfragen. Senden braucht weiter die Passphrase.</string>
@@ -998,4 +1001,5 @@
     <string name="more_settings">Einstellungen</string>
     <string name="more_settings_hint">Sicherheit, Netzwerk, Darstellung, Sprache</string>
     <string name="more_footer">Elektron DEX: der Marktplatz hält die Wallet einen Tipp entfernt.</string>
+    <string name="market_coins">%1$d Coins</string>
 </resources>

@@ -48,6 +48,53 @@ object KdfConfig {
         "btc.electrum2.cipig.net:10000",
     )
 
+    enum class KdfCoinKind { UTXO, ETH, ERC20 }
+
+    /**
+     * One coin the engine can hold. UTXO coins run on electrum (no chain data on
+     * the phone), ETH and tokens talk to public RPC nodes, so the DEX stays
+     * multi-coin without downloading a single block.
+     */
+    data class KdfCoin(
+        val ticker: String,
+        val kind: KdfCoinKind,
+        val electrum: List<String> = emptyList(),
+        val rpcUrls: List<String> = emptyList(),
+        val swapContract: String? = null,
+        val contractAddress: String? = null,
+        val decimals: Int = 8,
+    )
+
+    /**
+     * The coins this line activates. Mirrors the `coins` array that
+     * [buildConfig] writes; `KdfConfigTest` fails when the two drift apart.
+     */
+    fun coinsFor(isTestnet: Boolean, electrumServers: List<String>): List<KdfCoin> = if (isTestnet) {
+        listOf(
+            KdfCoin("tELEK", KdfCoinKind.UTXO, electrum = electrumServers),
+            KdfCoin("tBTC", KdfCoinKind.UTXO, electrum = electrumServers),
+            KdfCoin(
+                "SEPOLIAETH",
+                KdfCoinKind.ETH,
+                rpcUrls = SEPOLIA_RPC_URLS,
+                swapContract = SEPOLIA_SWAP_CONTRACT,
+                decimals = 18,
+            ),
+        )
+    } else {
+        listOf(
+            KdfCoin("ELEK", KdfCoinKind.UTXO, electrum = ELEK_ELECTRUM_SERVERS),
+            KdfCoin("BTC", KdfCoinKind.UTXO, electrum = BTC_ELECTRUM_SERVERS),
+            KdfCoin(
+                "ETH",
+                KdfCoinKind.ETH,
+                rpcUrls = MAINNET_ETH_RPC_URLS,
+                swapContract = MAINNET_ETH_SWAP_CONTRACT,
+                decimals = 18,
+            ),
+        )
+    }
+
     /**
      * Deterministic KDF Passphrase derived from the wallet seed phrase (Task #98).
      * Returns "elkkdf1" + sha256("elektron-net/kdf-passphrase/v1/" + seedText).
