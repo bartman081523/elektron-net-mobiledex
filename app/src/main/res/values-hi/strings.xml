@@ -997,4 +997,8 @@
     <string name="more_settings">Settings</string>
     <string name="more_settings_hint">Security, network, appearance, language</string>
     <string name="more_footer">Elektron DEX: the marketplace keeps the wallet one tap away.</string>
+    <string name="settings_dex">विकेंद्रीकृत एक्सचेंज</string>
+    <string name="settings_kdf_autostart">ऐप के साथ स्वैप इंजन शुरू करें</string>
+    <string name="settings_kdf_autostart_hint">चालू: इंजन ऐप के साथ शुरू होता है, DEX नेटवर्क से जुड़ता है और सभी कॉइन सक्रिय करता है (Electron, Bitcoin और Ethereum टेस्टनेट)। इसमें कुछ सेकंड लगते हैं और आपके रोकने तक यह चालू रहता है। बंद: आप इसे स्वैप पेज से खुद शुरू करते हैं।</string>
+    <string name="market_coins">%1$d कॉइन</string>
 </resources>

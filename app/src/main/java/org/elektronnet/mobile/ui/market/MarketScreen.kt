@@ -4,6 +4,8 @@
 package org.elektronnet.mobile.ui.market
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +48,8 @@ import kotlinx.coroutines.withContext
 import org.elektronnet.mobile.ChainConfig
 import org.elektronnet.mobile.R
 import org.elektronnet.mobile.kdf.KdfState
+import org.elektronnet.mobile.kdf.CoinBalance
+import org.elektronnet.mobile.kdf.KdfConfig
 import org.elektronnet.mobile.kdf.MakerOrder
 import org.elektronnet.mobile.kdf.Orderbook
 import org.elektronnet.mobile.kdf.orderbookVwap
@@ -54,8 +58,13 @@ import org.elektronnet.mobile.ui.tools.ErrorText
 import org.elektronnet.mobile.ui.tools.Hint
 import org.elektronnet.mobile.ui.tools.ToolPage
 
-private val MARKET_TESTNET_PAIRS = listOf("tELEK" to "tBTC", "tELEK" to "SEPOLIAETH", "tBTC" to "SEPOLIAETH")
-private val MARKET_MAINNET_PAIRS = listOf("ELEK" to "BTC", "ELEK" to "ETH", "BTC" to "ETH")
+// every pair the engine's coin set can trade, so a new coin shows up by itself
+private fun marketPairs(): List<Pair<String, String>> {
+    val tickers = KdfConfig.coinsFor(ChainConfig.isTestnet, emptyList()).map { it.ticker }
+    return tickers.flatMapIndexed { index, base ->
+        tickers.drop(index + 1).map { rel -> base to rel }
+    }
+}
 
 /**
  * The front page of the DEX: what the market offers right now.
@@ -68,7 +77,7 @@ private val MARKET_MAINNET_PAIRS = listOf("ELEK" to "BTC", "ELEK" to "ETH", "BTC
 fun MarketScreen(onOpenSwap: () -> Unit) {
     val scope = rememberCoroutineScope()
     val kdf = NodeHost.kdfSupervisor
-    val pairs = remember { if (ChainConfig.isTestnet) MARKET_TESTNET_PAIRS else MARKET_MAINNET_PAIRS }
+    val pairs = remember { marketPairs() }
     var pairIndex by remember { mutableIntStateOf(0) }
     val pair = pairs[pairIndex]
     val base = pair.first
@@ -76,6 +85,7 @@ fun MarketScreen(onOpenSwap: () -> Unit) {
 
     var book by remember { mutableStateOf<Orderbook?>(null) }
     var myOrders by remember { mutableStateOf<List<MakerOrder>>(emptyList()) }
+    var coinBalances by remember { mutableStateOf<Map<String, CoinBalance>>(emptyMap()) }
     var error by remember { mutableStateOf<String?>(null) }
     var lastUpdate by remember { mutableIntStateOf(0) }
 
@@ -87,9 +97,13 @@ fun MarketScreen(onOpenSwap: () -> Unit) {
                 runCatching {
                     val ob = client.orderbook(base, rel)
                     val orders = client.myOrders().makerOrders.filter { it.base == base && it.rel == rel }
+                    val all = KdfConfig.coinsFor(ChainConfig.isTestnet, emptyList()).map { it.ticker }
+                        .mapNotNull { ticker -> runCatching { ticker to client.myBalance(ticker) }.getOrNull() }
+                        .toMap()
                     withContext(Dispatchers.Main) {
                         book = ob
                         myOrders = orders
+                        coinBalances = all
                         error = null
                         lastUpdate++
                     }
@@ -146,6 +160,35 @@ fun MarketScreen(onOpenSwap: () -> Unit) {
                 }
                 if (kdf?.state !is KdfState.Running) {
                     TextButton(onClick = onOpenSwap) { Text(stringResource(R.string.market_start_engine)) }
+                } else if (coinBalances.isNotEmpty()) {
+                    Text(
+                        stringResource(R.string.market_coins, coinBalances.size),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+
+        if (kdf?.state is KdfState.Running && coinBalances.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                coinBalances.entries.forEach { (ticker, value) ->
+                    Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceVariant) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(ticker, style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                value.balance.toPlainString(),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
                 }
             }
         }

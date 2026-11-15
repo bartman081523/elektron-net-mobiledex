@@ -997,4 +997,8 @@
     <string name="more_settings">Settings</string>
     <string name="more_settings_hint">Security, network, appearance, language</string>
     <string name="more_footer">Elektron DEX: the marketplace keeps the wallet one tap away.</string>
+    <string name="settings_dex">Sàn giao dịch phi tập trung</string>
+    <string name="settings_kdf_autostart">Khởi động công cụ hoán đổi cùng ứng dụng</string>
+    <string name="settings_kdf_autostart_hint">Bật: công cụ khởi động cùng ứng dụng, tham gia mạng DEX và kích hoạt mọi loại tiền (mạng thử nghiệm Electron, Bitcoin và Ethereum). Mất vài giây và vẫn chạy cho đến khi bạn dừng. Tắt: bạn tự khởi động trên trang hoán đổi.</string>
+    <string name="market_coins">%1$d loại tiền</string>
 </resources>

@@ -95,6 +95,11 @@ class SettingsStore(context: Context) {
 
     private inline fun <reified T : Enum<T>> enumOf(name: String?, default: T): T = enumValues<T>().firstOrNull { it.name == name } ?: default
 
+    /** Start the swap engine together with the app instead of waiting for a tap. */
+    var kdfAutostart: Boolean
+        get() = prefs.getBoolean(KDF_AUTOSTART, true)
+        set(value) = prefs.edit().putBoolean(KDF_AUTOSTART, value).apply()
+
     fun walletReady(): Boolean = prefs.getBoolean(WALLET_READY, false)
 
     fun setWalletReady(value: Boolean) = prefs.edit().putBoolean(WALLET_READY, value).apply()
@@ -312,6 +317,7 @@ class SettingsStore(context: Context) {
     }
 
     private companion object {
+        const val KDF_AUTOSTART = "kdf_autostart"
         const val USER_STOPPED = "user_stopped"
         const val USER_PAUSED = "user_paused"
         const val BACKGROUND = "background_enabled"

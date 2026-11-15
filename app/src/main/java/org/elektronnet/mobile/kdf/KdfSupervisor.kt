@@ -260,7 +260,7 @@ class KdfSupervisor(
                 val v = client.version()
                 if (v.isNotBlank()) {
                     versionInfo = v
-                    activateDefaultCoins()
+                    activateAllCoins()
                     synchronized(lock) {
                         if (process === started) {
                             state = KdfState.Running
@@ -280,34 +280,55 @@ class KdfSupervisor(
         }
     }
 
-    private fun activateDefaultCoins() {
-        if (ChainConfig.isTestnet) {
-            // Use the profile's indexer, not a hardcoded loopback: on a LAN
-            // install the electrs server is another host.
-            val electrumServers = readNetworkProfile().electrum.ifEmpty { KdfConfig.TELEK_ELECTRUM_SERVERS }
+    /**
+     * Activates every coin this line knows about. A coin that fails (indexer
+     * down, RPC unreachable) must not keep the others out of the book.
+     */
+    private fun activateAllCoins() {
+        activateCoins(KdfConfig.coinsFor(ChainConfig.isTestnet, electrumServers()))
+        scheduleActivationRetry()
+    }
+
+    private fun electrumServers(): List<String> =
+        readNetworkProfile().electrum.ifEmpty { KdfConfig.TELEK_ELECTRUM_SERVERS }
+
+    private fun activateCoins(coins: List<KdfConfig.KdfCoin>) {
+        for (coin in coins) {
             try {
-                client.enableElectrum("tELEK", electrumServers)
-                output.add("tELEK activated on KDF daemon")
+                when (coin.kind) {
+                    KdfConfig.KdfCoinKind.UTXO -> client.enableElectrum(coin.ticker, coin.electrum)
+                    KdfConfig.KdfCoinKind.ETH -> client.enableEth(
+                        coin = coin.ticker,
+                        urls = coin.rpcUrls,
+                        swapContract = coin.swapContract.orEmpty(),
+                    )
+                    KdfConfig.KdfCoinKind.ERC20 -> client.enableErc20(coin, coin.rpcUrls)
+                }
+                output.add("${coin.ticker} activated on KDF daemon")
             } catch (e: Exception) {
-                output.add("Warning: tELEK activation failed: ${e.message}")
-            }
-            try {
-                client.enableElectrum("tBTC", electrumServers)
-                output.add("tBTC activated on KDF daemon")
-            } catch (e: Exception) {
-                output.add("Warning: tBTC activation failed: ${e.message}")
-            }
-            try {
-                client.enableEth(
-                    coin = "SEPOLIAETH",
-                    urls = listOf("https://ethereum-sepolia-rpc.publicnode.com", "https://sepolia.drpc.org"),
-                    swapContract = "0xeA6D65434A15377081495a9E7C5893543E7c32cB",
-                )
-                output.add("SEPOLIAETH activated on KDF daemon")
-            } catch (e: Exception) {
-                output.add("Warning: SEPOLIAETH activation failed: ${e.message}")
+                output.add("Warning: ${coin.ticker} activation failed: ${e.message}")
             }
         }
+    }
+
+    /**
+     * An indexer or RPC endpoint that is down during start must not leave the
+     * coin dead until the next app start, so missing coins are retried for a
+     * few minutes while the daemon runs.
+     */
+    private fun scheduleActivationRetry() {
+        Thread({
+            repeat(18) {
+                Thread.sleep(20_000)
+                if (process == null) return@Thread
+                val enabled = runCatching { client.enabledCoins() }.getOrNull() ?: return@repeat
+                val missing = KdfConfig.coinsFor(ChainConfig.isTestnet, electrumServers())
+                    .filter { it.ticker !in enabled }
+                if (missing.isEmpty()) return@Thread
+                output.add("retrying ${missing.joinToString(", ") { it.ticker }}")
+                activateCoins(missing)
+            }
+        }, "kdf-activation-retry").apply { isDaemon = true }.start()
     }
 
     private fun killStale() {

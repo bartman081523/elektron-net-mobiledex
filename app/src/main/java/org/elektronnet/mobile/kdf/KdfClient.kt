@@ -338,6 +338,26 @@ class KdfClient(
         ))
     }
 
+    /** Tickers the daemon currently holds, reported by MMRPC 2.0 `get_enabled_coins`. */
+    fun enabledCoins(): List<String> {
+        val reply = callV2("get_enabled_coins", emptyMap(), timeoutMs = 10_000)
+        val result = reply["result"] as? Map<*, *> ?: return emptyList()
+        return (result["coins"] as? List<*>).orEmpty()
+            .mapNotNull { (it as? Map<*, *>)?.get("ticker")?.toString() }
+    }
+
+    /** ERC20 tokens ride on an ETH RPC endpoint, the contract address selects the token. */
+    fun enableErc20(coin: KdfConfig.KdfCoin, urls: List<String>): Map<*, *> {
+        val params = linkedMapOf<String, Any?>(
+            "coin" to coin.ticker,
+            "urls" to urls,
+            "mm2" to 1,
+        )
+        coin.swapContract?.let { params["swap_contract_address"] = it }
+        coin.contractAddress?.let { params["erc20_contract_address"] = it }
+        return call("enable", params)
+    }
+
     fun withdraw(
         coin: String,
         toAddress: String,
