@@ -54,6 +54,7 @@ import org.elektronnet.mobile.kdf.MakerOrder
 import org.elektronnet.mobile.kdf.Orderbook
 import org.elektronnet.mobile.kdf.orderbookVwap
 import org.elektronnet.mobile.service.NodeHost
+import org.elektronnet.mobile.ui.CoinBadge
 import org.elektronnet.mobile.ui.tools.ErrorText
 import org.elektronnet.mobile.ui.tools.Hint
 import org.elektronnet.mobile.ui.tools.ToolPage
@@ -181,7 +182,7 @@ fun MarketScreen(onOpenSwap: () -> Unit) {
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text(ticker, style = MaterialTheme.typography.labelSmall)
+                            CoinBadge(ticker)
                             Text(
                                 value.balance.toPlainString(),
                                 style = MaterialTheme.typography.titleSmall,

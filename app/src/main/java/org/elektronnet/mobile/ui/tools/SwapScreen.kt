@@ -70,6 +70,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.RadioButton
 import androidx.compose.ui.text.style.TextAlign
+import org.elektronnet.mobile.ui.CoinBadge
 import org.elektronnet.mobile.ui.theme.ElektronMono
 import org.elektronnet.mobile.ui.tools.copyText
 import org.elektronnet.mobile.ui.receive.QrView
@@ -282,7 +283,7 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text(ticker, style = MaterialTheme.typography.labelSmall)
+                            CoinBadge(ticker)
                             Text(
                                 value.balance.toPlainString(),
                                 style = MaterialTheme.typography.titleSmall,
