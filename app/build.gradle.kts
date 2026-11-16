@@ -83,7 +83,9 @@ android {
             buildConfigField("int", "RPC_PORT", "28332")
             buildConfigField("String", "DEFAULT_THEME", "\"red\"")
             buildConfigField("boolean", "IS_TESTNET", "true")
-            buildConfigField("String", "DEFAULT_WALLET", "\"elektrontestnet\"")
+            // the same default wallet name as the mainnet flavor and the wallet line:
+            // the testnet already shows in appId, datadir and ports, not in the name
+            buildConfigField("String", "DEFAULT_WALLET", "\"elektron\"")
         }
     }
 
