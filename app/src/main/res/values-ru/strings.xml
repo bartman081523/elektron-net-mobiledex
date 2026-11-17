@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">Запускать движок обмена вместе с приложением</string>
     <string name="settings_kdf_autostart_hint">Вкл.: движок запускается вместе с приложением, подключается к сети DEX и активирует все монеты (тестнеты Electron, Bitcoin и Ethereum). Это занимает несколько секунд, и он работает, пока вы его не остановите. Выкл.: вы запускаете его сами на странице обмена.</string>
     <string name="market_coins">%1$d монет</string>
+    <string name="swap_wallet_missing_title">Нет кошелька для %1$s</string>
+    <string name="swap_wallet_missing_body">%1$s поступил в обменный кошелёк. Создайте кошелёк сейчас — при следующем обмене средства уйдут туда, или оставьте их в обменном кошельке.</string>
+    <string name="swap_wallet_create">Создать кошелёк</string>
+    <string name="swap_wallet_later">Позже</string>
+    <string name="swap_wallet_auto">%1$s переведён в кошелёк %2$s</string>
+    <string name="swap_wallet_auto_failed">Не удалось перевести %1$s: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s остаётся в обменном кошельке: этот узел не поддерживает эту сеть.</string>
+    <string name="swap_wallet_note_dismiss">ОК</string>
 </resources>

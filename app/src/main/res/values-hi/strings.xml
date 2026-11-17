@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">ऐप के साथ स्वैप इंजन शुरू करें</string>
     <string name="settings_kdf_autostart_hint">चालू: इंजन ऐप के साथ शुरू होता है, DEX नेटवर्क से जुड़ता है और सभी कॉइन सक्रिय करता है (Electron, Bitcoin और Ethereum टेस्टनेट)। इसमें कुछ सेकंड लगते हैं और आपके रोकने तक यह चालू रहता है। बंद: आप इसे स्वैप पेज से खुद शुरू करते हैं।</string>
     <string name="market_coins">%1$d कॉइन</string>
+    <string name="swap_wallet_missing_title">%1$s के लिए कोई वॉलेट नहीं</string>
+    <string name="swap_wallet_missing_body">%1$s स्वैप वॉलेट में आ गया। अभी वॉलेट बनाएँ, अगले स्वैप पर यह वहाँ चला जाएगा, या इसे स्वैप वॉलेट में रहने दें।</string>
+    <string name="swap_wallet_create">वॉलेट बनाएँ</string>
+    <string name="swap_wallet_later">बाद में</string>
+    <string name="swap_wallet_auto">%1$s वॉलेट %2$s में स्थानांतरित हुआ</string>
+    <string name="swap_wallet_auto_failed">%1$s स्थानांतरित नहीं हो सका: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s स्वैप वॉलेट में रहता है: यह नोड उस चेन को नहीं चलाता।</string>
+    <string name="swap_wallet_note_dismiss">ठीक</string>
 </resources>

@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">Khởi động công cụ hoán đổi cùng ứng dụng</string>
     <string name="settings_kdf_autostart_hint">Bật: công cụ khởi động cùng ứng dụng, tham gia mạng DEX và kích hoạt mọi loại tiền (mạng thử nghiệm Electron, Bitcoin và Ethereum). Mất vài giây và vẫn chạy cho đến khi bạn dừng. Tắt: bạn tự khởi động trên trang hoán đổi.</string>
     <string name="market_coins">%1$d loại tiền</string>
+    <string name="swap_wallet_missing_title">Không có ví cho %1$s</string>
+    <string name="swap_wallet_missing_body">%1$s đã vào ví hoán đổi. Hãy tạo ví ngay, lần hoán đổi sau sẽ chuyển vào đó, hoặc để nguyên trong ví hoán đổi.</string>
+    <string name="swap_wallet_create">Tạo ví</string>
+    <string name="swap_wallet_later">Để sau</string>
+    <string name="swap_wallet_auto">%1$s đã được chuyển vào ví %2$s</string>
+    <string name="swap_wallet_auto_failed">Không thể chuyển %1$s: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s ở lại ví hoán đổi: nút này không chạy mạng đó.</string>
+    <string name="swap_wallet_note_dismiss">OK</string>
 </resources>

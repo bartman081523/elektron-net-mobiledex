@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">Démarrer le moteur d\'échange avec l\'application</string>
     <string name="settings_kdf_autostart_hint">Activé : le moteur démarre avec l\'application, rejoint le réseau DEX et active toutes les monnaies (testnets Electron, Bitcoin et Ethereum). Cela prend quelques secondes et reste actif jusqu\'à ce que vous l\'arrêtiez. Désactivé : vous le démarrez vous-même sur la page d\'échange.</string>
     <string name="market_coins">%1$d monnaies</string>
+    <string name="swap_wallet_missing_title">Pas de portefeuille pour %1$s</string>
+    <string name="swap_wallet_missing_body">%1$s est arrivé dans le portefeuille d\'échange. Créez un portefeuille maintenant : il y sera transféré au prochain échange, ou laissez-le dans le portefeuille d\'échange.</string>
+    <string name="swap_wallet_create">Créer un portefeuille</string>
+    <string name="swap_wallet_later">Plus tard</string>
+    <string name="swap_wallet_auto">%1$s a été transféré vers le portefeuille %2$s</string>
+    <string name="swap_wallet_auto_failed">%1$s n\'a pas pu être transféré : %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s reste dans le portefeuille d\'échange : ce nœud ne gère pas cette chaîne.</string>
+    <string name="swap_wallet_note_dismiss">OK</string>
 </resources>

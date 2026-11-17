@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">Iniciar el motor de intercambio con la app</string>
     <string name="settings_kdf_autostart_hint">Activado: el motor se inicia con la app, se une a la red DEX y activa todas las monedas (testnets de Electron, Bitcoin y Ethereum). Tarda unos segundos y sigue activo hasta que lo detengas. Desactivado: lo inicias tú en la página de intercambio.</string>
     <string name="market_coins">%1$d monedas</string>
+    <string name="swap_wallet_missing_title">No hay cartera para %1$s</string>
+    <string name="swap_wallet_missing_body">%1$s llegó a la cartera de intercambio. Crea ahora una cartera y se transferirá en el próximo intercambio, o déjalo en la cartera de intercambio.</string>
+    <string name="swap_wallet_create">Crear cartera</string>
+    <string name="swap_wallet_later">Más tarde</string>
+    <string name="swap_wallet_auto">%1$s se transfirió a la cartera %2$s</string>
+    <string name="swap_wallet_auto_failed">No se pudo transferir %1$s: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s se queda en la cartera de intercambio: este nodo no soporta esa cadena.</string>
+    <string name="swap_wallet_note_dismiss">OK</string>
 </resources>

@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">アプリと一緒にスワップエンジンを起動</string>
     <string name="settings_kdf_autostart_hint">オン：エンジンはアプリと同時に起動し、DEX ネットワークに参加してすべてのコイン（Electron、Bitcoin、Ethereum のテストネット）を有効にします。数秒かかり、停止するまで動作します。オフ：スワップ画面で自分で起動します。</string>
     <string name="market_coins">%1$d コイン</string>
+    <string name="swap_wallet_missing_title">%1$s のウォレットがありません</string>
+    <string name="swap_wallet_missing_body">%1$s がスワップウォレットに届きました。今ウォレットを作成すると次回のスワップでそこへ移動します。スワップウォレットに残すこともできます。</string>
+    <string name="swap_wallet_create">ウォレットを作成</string>
+    <string name="swap_wallet_later">後で</string>
+    <string name="swap_wallet_auto">%1$s をウォレット %2$s に移動しました</string>
+    <string name="swap_wallet_auto_failed">%1$s を移動できませんでした: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s はスワップウォレットに残ります: このノードはそのチェーンを扱いません。</string>
+    <string name="swap_wallet_note_dismiss">OK</string>
 </resources>

@@ -81,6 +81,102 @@ object NodeHost {
     var wallets: List<OwnWallet> by mutableStateOf(emptyList())
         private set
 
+    /**
+     * Wallet a swap coin lands in. An explicit mapping wins; a UTXO coin on this
+     * node's chain falls back to the active wallet; anything else has none,
+     * because the node does not carry that chain.
+     */
+    fun walletForCoin(coin: String): String? {
+        val mapped = settings?.coinWallets?.get(coin.uppercase())
+        if (mapped != null && wallets.any { it.name == mapped }) return mapped
+        return if (canNodeHold(coin)) activeWallet else null
+    }
+
+    fun canNodeHold(coin: String): Boolean =
+        org.elektronnet.mobile.kdf.KdfConfig.coinsFor(ChainConfig.isTestnet, emptyList())
+            .firstOrNull { it.ticker.equals(coin, ignoreCase = true) }
+            ?.kind == org.elektronnet.mobile.kdf.KdfConfig.KdfCoinKind.UTXO
+
+    fun mapCoinWallet(coin: String, wallet: String) {
+        val store = settings ?: return
+        store.coinWallets = store.coinWallets + (coin.uppercase() to wallet)
+    }
+
+    /** Last automatic move of a swap result, for the swap screen to report. */
+    var lastClaim: Pair<String, String>? by mutableStateOf(null)
+
+    /** Why the last automatic move failed, if it did. */
+    var lastClaimError: String? by mutableStateOf(null)
+
+    /** Coin of a finished swap that has no wallet yet and could get one. */
+    var missingWalletCoin: String? by mutableStateOf(null)
+
+    @Volatile
+    private var claimRunning = false
+
+    /**
+     * Moves the received amount of every finished swap into its coin's wallet,
+     * once per swap. Runs from the runtime tick so it does not depend on the
+     * swap screen being open; a coin this node cannot hold is left alone.
+     */
+    private fun maintainSwapClaims() {
+        val supervisor = kdfSupervisor ?: return
+        if (supervisor.state != org.elektronnet.mobile.kdf.KdfState.Running) return
+        if (claimRunning) return
+        val store = settings ?: return
+        claimRunning = true
+        Thread({
+            try {
+                val claimed = store.claimedSwaps.toMutableSet()
+                val swaps = runCatching { supervisor.getRecentSwapsMerged(10) }.getOrDefault(emptyList())
+                val log = java.io.File(supervisor.kdfDir, "claim.log")
+                fun note(line: String) { runCatching { log.appendText("${System.currentTimeMillis()} $line\n") } }
+                note("tick: ${swaps.size} swaps, claimed=${claimed.size}")
+                for (sw in swaps) {
+                    if (sw.state != "Finished" || sw.otherAmount <= java.math.BigDecimal.ZERO) {
+                        note("skip ${sw.uuid.take(8)} state=${sw.state} amount=${sw.otherAmount}")
+                        continue
+                    }
+                    if (sw.uuid in claimed) continue
+                    val wallet = walletForCoin(sw.otherCoin)
+                    note("claim ${sw.uuid.take(8)} coin=${sw.otherCoin} amount=${sw.otherAmount} wallet=$wallet")
+                    if (wallet == null) {
+                        if (canNodeHold(sw.otherCoin)) missingWalletCoin = sw.otherCoin
+                        claimed += sw.uuid
+                        store.claimedSwaps = claimed
+                        continue
+                    }
+                    claimed += sw.uuid
+                    store.claimedSwaps = claimed
+                    runCatching {
+                        kotlinx.coroutines.runBlocking {
+                            withdrawFromKdfToWallet(sw.otherCoin, wallet, max = true)
+                        }
+                    }.onSuccess {
+                        lastClaim = sw.otherCoin to wallet
+                        lastClaimError = null
+                        note("ok ${sw.uuid.take(8)} -> $wallet")
+                    }.onFailure { error ->
+                        lastClaimError = "${sw.otherCoin}: ${error.message ?: error.javaClass.simpleName}"
+                        note("failed ${sw.uuid.take(8)}: ${error.message}")
+                    }
+                }
+            } finally {
+                claimRunning = false
+            }
+        }, "kdf-claims").apply { isDaemon = true }.start()
+    }
+
+    // set while the add-wallet screen runs, so the new wallet gets the coin
+    @Volatile
+    var pendingCoinWallet: String? = null
+
+    fun finishPendingCoinWallet() {
+        val coin = pendingCoinWallet ?: return
+        pendingCoinWallet = null
+        mapCoinWallet(coin, activeWallet)
+    }
+
     // a watch-only wallet has no keys on this phone, a signing device signs for it
     fun isWatchOnly(name: String = activeWallet): Boolean = wallets.firstOrNull { it.name == name }?.watchOnly == true
 
@@ -283,6 +379,7 @@ object NodeHost {
         maintainWallets(snapshot)
         maintainRegistryPeers()
         maybeAutostartKdf(snapshot)
+        maintainSwapClaims()
         return snapshot
     }
 
@@ -484,7 +581,11 @@ object NodeHost {
                 amount = amount,
                 max = max,
             )
-            client.sendRawTransaction(coin, draft.txHex)
+            // the draft comes back unsigned by the network; the node broadcasts reliably,
+            // the engine's own electrum broadcast does not reach our indexer
+            runCatching { rw.broadcast(draft.txHex) }
+                .recoverCatching { client.sendRawTransaction(coin, draft.txHex) }
+                .getOrThrow()
         }
     }
 
