@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">Mulai mesin swap bersama aplikasi</string>
     <string name="settings_kdf_autostart_hint">Aktif: mesin menyala bersama aplikasi, bergabung ke jaringan DEX dan mengaktifkan semua koin (testnet Electron, Bitcoin dan Ethereum). Butuh beberapa detik dan tetap menyala sampai Anda hentikan. Nonaktif: Anda menyalakannya sendiri di halaman swap.</string>
     <string name="market_coins">%1$d koin</string>
+    <string name="swap_wallet_missing_title">Tidak ada dompet untuk %1$s</string>
+    <string name="swap_wallet_missing_body">%1$s tiba di dompet swap. Buat dompet sekarang dan dana akan dipindahkan pada swap berikutnya, atau biarkan di dompet swap.</string>
+    <string name="swap_wallet_create">Buat dompet</string>
+    <string name="swap_wallet_later">Nanti</string>
+    <string name="swap_wallet_auto">%1$s dipindahkan ke dompet %2$s</string>
+    <string name="swap_wallet_auto_failed">%1$s tidak dapat dipindahkan: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s tetap di dompet swap: node ini tidak menjalankan jaringan itu.</string>
+    <string name="swap_wallet_note_dismiss">OK</string>
 </resources>

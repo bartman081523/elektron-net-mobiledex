@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">随应用启动交换引擎</string>
     <string name="settings_kdf_autostart_hint">开启：引擎随应用启动，加入 DEX 网络并激活所有币种（Electron、Bitcoin 和 Ethereum 测试网）。需要几秒钟，并会一直运行到你停止它。关闭：你在交换页面自行启动。</string>
     <string name="market_coins">%1$d 个币种</string>
+    <string name="swap_wallet_missing_title">没有 %1$s 的钱包</string>
+    <string name="swap_wallet_missing_body">%1$s 已到达交换钱包。现在创建钱包，下次交换时会转入其中；也可以继续留在交换钱包。</string>
+    <string name="swap_wallet_create">创建钱包</string>
+    <string name="swap_wallet_later">稍后</string>
+    <string name="swap_wallet_auto">%1$s 已转入钱包 %2$s</string>
+    <string name="swap_wallet_auto_failed">无法转入 %1$s：%2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s 保留在交换钱包：此节点不支持该网络。</string>
+    <string name="swap_wallet_note_dismiss">好</string>
 </resources>

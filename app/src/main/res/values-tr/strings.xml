@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">Takas motorunu uygulamayla başlat</string>
     <string name="settings_kdf_autostart_hint">Açık: motor uygulamayla başlar, DEX ağına katılır ve tüm coinleri etkinleştirir (Electron, Bitcoin ve Ethereum test ağları). Birkaç saniye sürer ve siz durdurana kadar açık kalır. Kapalı: takas sayfasından kendiniz başlatırsınız.</string>
     <string name="market_coins">%1$d coin</string>
+    <string name="swap_wallet_missing_title">%1$s için cüzdan yok</string>
+    <string name="swap_wallet_missing_body">%1$s takas cüzdanına geldi. Şimdi bir cüzdan oluşturun, bir sonraki takasta oraya aktarılır; ya da takas cüzdanında bırakın.</string>
+    <string name="swap_wallet_create">Cüzdan oluştur</string>
+    <string name="swap_wallet_later">Daha sonra</string>
+    <string name="swap_wallet_auto">%1$s, %2$s cüzdanına aktarıldı</string>
+    <string name="swap_wallet_auto_failed">%1$s aktarılamadı: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s takas cüzdanında kalır: bu düğüm o zinciri taşımıyor.</string>
+    <string name="swap_wallet_note_dismiss">Tamam</string>
 </resources>

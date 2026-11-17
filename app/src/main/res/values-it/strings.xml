@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">Avvia il motore di scambio con l\'app</string>
     <string name="settings_kdf_autostart_hint">Attivo: il motore si avvia con l\'app, si unisce alla rete DEX e attiva tutte le monete (testnet Electron, Bitcoin ed Ethereum). Richiede qualche secondo e resta attivo finché non lo fermi. Disattivo: lo avvii tu dalla pagina di scambio.</string>
     <string name="market_coins">%1$d monete</string>
+    <string name="swap_wallet_missing_title">Nessun portafoglio per %1$s</string>
+    <string name="swap_wallet_missing_body">%1$s è arrivato nel portafoglio di scambio. Crea ora un portafoglio e verrà trasferito al prossimo scambio, oppure lascialo nel portafoglio di scambio.</string>
+    <string name="swap_wallet_create">Crea portafoglio</string>
+    <string name="swap_wallet_later">Più tardi</string>
+    <string name="swap_wallet_auto">%1$s è stato trasferito nel portafoglio %2$s</string>
+    <string name="swap_wallet_auto_failed">Impossibile trasferire %1$s: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s resta nel portafoglio di scambio: questo nodo non gestisce quella catena.</string>
+    <string name="swap_wallet_note_dismiss">OK</string>
 </resources>

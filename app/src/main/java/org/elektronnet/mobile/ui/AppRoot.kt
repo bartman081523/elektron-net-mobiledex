@@ -292,7 +292,10 @@ fun AppRoot(onStart: () -> Unit, onStop: () -> Unit, onPause: () -> Unit, onResu
                 Overlay.Wallets -> WalletsScreen(onBack = { show(Overlay.None) }, onAdd = { show(Overlay.AddWallet) })
                 Overlay.AddWallet -> FirstRunScreen(
                     onAllowMetered = {},
-                    onFinished = { show(Overlay.None) },
+                    onFinished = {
+                        NodeHost.finishPendingCoinWallet()
+                        show(Overlay.None)
+                    },
                     addWallet = true,
                     onCancel = { show(if (walletReady) Overlay.Wallets else Overlay.None) },
                     onWatchOnly = { show(Overlay.WatchOnly) },
@@ -327,6 +330,7 @@ fun AppRoot(onStart: () -> Unit, onStop: () -> Unit, onPause: () -> Unit, onResu
                 Tab.Swap -> org.elektronnet.mobile.ui.tools.SwapScreen(
                     onBack = { tab = Tab.Market.ordinal },
                     showBack = false,
+                    onAddWallet = { show(Overlay.AddWallet) },
                 )
                 Tab.More -> org.elektronnet.mobile.ui.more.MoreScreen(
                     onOpenHistory = { tab = Tab.History.ordinal },

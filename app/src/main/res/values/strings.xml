@@ -1047,4 +1047,12 @@
     <string name="more_settings_hint">Security, network, appearance, language</string>
     <string name="more_footer">Elektron DEX: the marketplace keeps the wallet one tap away.</string>
     <string name="market_coins">%1$d coins</string>
+    <string name="swap_wallet_missing_title">No wallet for %1$s</string>
+    <string name="swap_wallet_missing_body">%1$s arrived in the swap wallet. Create a wallet now and it moves there on the next swap, or keep it in the swap wallet.</string>
+    <string name="swap_wallet_create">Create wallet</string>
+    <string name="swap_wallet_later">Later</string>
+    <string name="swap_wallet_auto">%1$s moved into the wallet %2$s</string>
+    <string name="swap_wallet_auto_failed">%1$s could not be moved: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s stays in the swap wallet: this node does not carry that chain.</string>
+    <string name="swap_wallet_note_dismiss">OK</string>
 </resources>

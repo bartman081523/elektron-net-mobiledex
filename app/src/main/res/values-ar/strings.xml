@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">بدء محرك المقايضة مع التطبيق</string>
     <string name="settings_kdf_autostart_hint">مفعّل: يبدأ المحرك مع التطبيق وينضم إلى شبكة DEX ويفعّل كل العملات (شبكات اختبار Electron وBitcoin وEthereum). يستغرق ثوانٍ قليلة ويبقى يعمل حتى توقفه. معطّل: تبدأه بنفسك من صفحة المقايضة.</string>
     <string name="market_coins">%1$d عملات</string>
+    <string name="swap_wallet_missing_title">لا توجد محفظة لـ %1$s</string>
+    <string name="swap_wallet_missing_body">وصل %1$s إلى محفظة المقايضة. أنشئ محفظة الآن وسيُنقل إليها في المقايضة التالية، أو اتركه في محفظة المقايضة.</string>
+    <string name="swap_wallet_create">إنشاء محفظة</string>
+    <string name="swap_wallet_later">لاحقًا</string>
+    <string name="swap_wallet_auto">تم نقل %1$s إلى المحفظة %2$s</string>
+    <string name="swap_wallet_auto_failed">تعذّر نقل %1$s: %2$s</string>
+    <string name="swap_wallet_mesh_only">يبقى %1$s في محفظة المقايضة: هذه العقدة لا تدعم تلك الشبكة.</string>
+    <string name="swap_wallet_note_dismiss">حسنًا</string>
 </resources>

@@ -1001,4 +1001,12 @@
     <string name="settings_kdf_autostart">앱과 함께 스왑 엔진 시작</string>
     <string name="settings_kdf_autostart_hint">켜짐: 엔진이 앱과 함께 시작되어 DEX 네트워크에 연결되고 모든 코인(Electron, Bitcoin, Ethereum 테스트넷)을 활성화합니다. 몇 초 걸리며 중지할 때까지 실행됩니다. 꺼짐: 스왑 화면에서 직접 시작합니다.</string>
     <string name="market_coins">%1$d 코인</string>
+    <string name="swap_wallet_missing_title">%1$s 지갑이 없습니다</string>
+    <string name="swap_wallet_missing_body">%1$s이(가) 스왑 지갑에 도착했습니다. 지금 지갑을 만들면 다음 스왑에서 그곳으로 이동하고, 스왑 지갑에 그대로 둘 수도 있습니다.</string>
+    <string name="swap_wallet_create">지갑 만들기</string>
+    <string name="swap_wallet_later">나중에</string>
+    <string name="swap_wallet_auto">%1$s을(를) %2$s 지갑으로 옮겼습니다</string>
+    <string name="swap_wallet_auto_failed">%1$s을(를) 옮기지 못했습니다: %2$s</string>
+    <string name="swap_wallet_mesh_only">%1$s은(는) 스왑 지갑에 남습니다: 이 노드는 해당 체인을 지원하지 않습니다.</string>
+    <string name="swap_wallet_note_dismiss">확인</string>
 </resources>

@@ -99,7 +99,7 @@ private fun readableError(message: String?): String {
 }
 
 @Composable
-fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
+fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true, onAddWallet: () -> Unit = {}) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val kdf = NodeHost.kdfSupervisor
@@ -129,6 +129,8 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
     var withdrawCoin by remember { mutableStateOf<String?>(null) }
     var withdrawInitialAmount by remember { mutableStateOf("") }
     var showShareAddressDialog by remember { mutableStateOf(false) }
+    var missingWalletCoin by remember { mutableStateOf<String?>(null) }
+    var claimNote by remember { mutableStateOf<String?>(null) }
 
     fun refreshData() {
         val client = kdf?.client ?: return
@@ -152,6 +154,27 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
                     recentSwaps = swaps
                 }
             }
+        }
+    }
+
+    // the move itself runs from the runtime tick; the screen reports the result
+    LaunchedEffect(NodeHost.lastClaim) {
+        NodeHost.lastClaim?.let { (coin, wallet) ->
+            claimNote = context.getString(R.string.swap_wallet_auto, coin, wallet)
+            NodeHost.lastClaim = null
+            refreshData()
+        }
+    }
+
+    LaunchedEffect(NodeHost.lastClaimError) {
+        NodeHost.lastClaimError?.let { claimNote = it }
+    }
+
+    // a finished swap of a coin without a wallet asks whether to create one
+    LaunchedEffect(NodeHost.missingWalletCoin) {
+        NodeHost.missingWalletCoin?.let { coin ->
+            missingWalletCoin = coin
+            NodeHost.missingWalletCoin = null
         }
     }
 
@@ -293,6 +316,13 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
                     }
                 }
             }
+        }
+
+        val meshOnlyCoin = recentSwaps.firstOrNull {
+            it.state == "Finished" && it.otherAmount > java.math.BigDecimal.ZERO && !NodeHost.canNodeHold(it.otherCoin)
+        }?.otherCoin
+        if (meshOnlyCoin != null) {
+            Hint(stringResource(R.string.swap_wallet_mesh_only, meshOnlyCoin))
         }
 
         // Share Address Button
@@ -809,7 +839,8 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
                     withdrawCoin = null
                     withdrawInitialAmount = ""
                 },
-                onSuccess = { txId ->
+                onSuccess = { txId, wallet ->
+                    withdrawCoin?.let { NodeHost.mapCoinWallet(it, wallet) }
                     message = "Auszahlung erfolgreich! TxID: ${txId.take(16)}..."
                     val finishedToPrune = recentSwaps.find { it.state == "Finished" && !it.isPruned && it.otherCoin == withdrawCoin }
                     if (finishedToPrune != null) {
@@ -832,6 +863,40 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true) {
                 onDismiss = { showShareAddressDialog = false },
             )
         }
+
+        claimNote?.let { note ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)),
+            ) {
+                Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(note, style = MaterialTheme.typography.bodySmall)
+                    TextButton(onClick = { claimNote = null }) {
+                        Text(stringResource(R.string.swap_wallet_note_dismiss), style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+        }
+
+        missingWalletCoin?.let { coin ->
+            AlertDialog(
+                onDismissRequest = { missingWalletCoin = null },
+                title = { Text(stringResource(R.string.swap_wallet_missing_title, coin)) },
+                text = { Text(stringResource(R.string.swap_wallet_missing_body, coin)) },
+                confirmButton = {
+                    Button(onClick = {
+                        NodeHost.pendingCoinWallet = coin
+                        missingWalletCoin = null
+                        onAddWallet()
+                    }) { Text(stringResource(R.string.swap_wallet_create)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { missingWalletCoin = null }) {
+                        Text(stringResource(R.string.swap_wallet_later))
+                    }
+                },
+            )
+        }
     }
 }
 
@@ -841,7 +906,7 @@ private fun WithdrawDialog(
     initialAmount: String = "",
     availableBalance: java.math.BigDecimal,
     onDismiss: () -> Unit,
-    onSuccess: (String) -> Unit,
+    onSuccess: (txId: String, wallet: String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val wallets = NodeHost.wallets
@@ -928,7 +993,7 @@ private fun WithdrawDialog(
                         )
                         inProgress = false
                         res.fold(
-                            onSuccess = { txHash -> onSuccess(txHash) },
+                            onSuccess = { txHash -> onSuccess(txHash, selectedWallet) },
                             onFailure = { err -> errorText = readableError(err.message ?: err.toString()) },
                         )
                     }
