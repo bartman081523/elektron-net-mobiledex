@@ -133,31 +133,35 @@ object NodeHost {
                 fun note(line: String) { runCatching { log.appendText("${System.currentTimeMillis()} $line\n") } }
                 note("tick: ${swaps.size} swaps, claimed=${claimed.size}")
                 for (sw in swaps) {
-                    if (sw.state != "Finished" || sw.otherAmount <= java.math.BigDecimal.ZERO) {
-                        note("skip ${sw.uuid.take(8)} state=${sw.state} amount=${sw.otherAmount}")
+                    // my_coin/my_amount is what this side receives, other_* is what it paid
+                    if (sw.state != "Finished" || sw.myAmount <= java.math.BigDecimal.ZERO) {
+                        note("skip ${sw.uuid.take(8)} state=${sw.state} amount=${sw.myAmount}")
                         continue
                     }
                     if (sw.uuid in claimed) continue
-                    val wallet = walletForCoin(sw.otherCoin)
-                    note("claim ${sw.uuid.take(8)} coin=${sw.otherCoin} amount=${sw.otherAmount} wallet=$wallet")
+                    val wallet = walletForCoin(sw.myCoin)
+                    note("claim ${sw.uuid.take(8)} coin=${sw.myCoin} amount=${sw.myAmount} wallet=$wallet")
                     if (wallet == null) {
-                        if (canNodeHold(sw.otherCoin)) missingWalletCoin = sw.otherCoin
+                        if (canNodeHold(sw.myCoin)) missingWalletCoin = sw.myCoin
                         claimed += sw.uuid
                         store.claimedSwaps = claimed
                         continue
                     }
                     claimed += sw.uuid
                     store.claimedSwaps = claimed
+                    // only what the swap brought in: the rest stays in the swap wallet
+                    // as the float for the next maker order
+                    val received = sw.myAmount.stripTrailingZeros().toPlainString()
                     runCatching {
                         kotlinx.coroutines.runBlocking {
-                            withdrawFromKdfToWallet(sw.otherCoin, wallet, max = true)
+                            withdrawFromKdfToWallet(sw.myCoin, wallet, amount = received, max = false)
                         }
                     }.onSuccess {
-                        lastClaim = sw.otherCoin to wallet
+                        lastClaim = sw.myCoin to wallet
                         lastClaimError = null
                         note("ok ${sw.uuid.take(8)} -> $wallet")
                     }.onFailure { error ->
-                        lastClaimError = "${sw.otherCoin}: ${error.message ?: error.javaClass.simpleName}"
+                        lastClaimError = "${sw.myCoin}: ${error.message ?: error.javaClass.simpleName}"
                         note("failed ${sw.uuid.take(8)}: ${error.message}")
                     }
                 }
