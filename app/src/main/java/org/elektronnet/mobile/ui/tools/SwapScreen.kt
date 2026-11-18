@@ -319,8 +319,8 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true, onAddWallet: () -> 
         }
 
         val meshOnlyCoin = recentSwaps.firstOrNull {
-            it.state == "Finished" && it.otherAmount > java.math.BigDecimal.ZERO && !NodeHost.canNodeHold(it.otherCoin)
-        }?.otherCoin
+            it.state == "Finished" && it.myAmount > java.math.BigDecimal.ZERO && !NodeHost.canNodeHold(it.myCoin)
+        }?.myCoin
         if (meshOnlyCoin != null) {
             Hint(stringResource(R.string.swap_wallet_mesh_only, meshOnlyCoin))
         }
@@ -799,16 +799,16 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true, onAddWallet: () -> 
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    if (sw.otherAmount > java.math.BigDecimal.ZERO) {
+                                    if (sw.myAmount > java.math.BigDecimal.ZERO) {
                                         Button(
                                             onClick = {
-                                                withdrawCoin = sw.otherCoin
-                                                withdrawInitialAmount = sw.otherAmount.toPlainString()
+                                                withdrawCoin = sw.myCoin
+                                                withdrawInitialAmount = sw.myAmount.toPlainString()
                                             },
                                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
                                             modifier = Modifier.weight(1f),
                                         ) {
-                                            Text(stringResource(R.string.swap_claim_reward, sw.otherAmount.toPlainString(), sw.otherCoin))
+                                            Text(stringResource(R.string.swap_claim_reward, sw.myAmount.toPlainString(), sw.myCoin))
                                         }
                                     }
                                     OutlinedButton(
