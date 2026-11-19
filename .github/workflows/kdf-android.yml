@@ -79,6 +79,7 @@ jobs:
           key: kdf-android-${{ steps.src.outputs.sha }}-${{ hashFiles('kdf/Cargo.lock') }}
           restore-keys: kdf-android-${{ steps.src.outputs.sha }}-
 
+      # cargo-ndk panics on "-p 26"; the flag is --platform and the app's minSdk is 28
       - name: Build the engine binary
         working-directory: kdf
         env:
@@ -86,7 +87,7 @@ jobs:
           LIBCLANG_PATH: /usr/lib/llvm-18/lib
         run: |
           set -o pipefail
-          if ! cargo ndk -t arm64-v8a -p 26 build --release --bin kdf > build.log 2>&1; then
+          if ! cargo ndk -t arm64-v8a --platform 28 build --release --bin kdf > build.log 2>&1; then
             echo "--- build failed, last 80 lines ---"
             tail -80 build.log
             exit 1
