@@ -80,7 +80,7 @@ class KdfConfigTest {
             electrumServers = listOf("192.168.178.21:50002"),
         )
         assertEquals(8888, conf["netid"])
-        assertEquals(7823, conf["rpcport"])
+        assertEquals(KdfConfig.DEFAULT_RPC_PORT, conf["rpcport"])
         val seeds = conf["seednodes"] as List<*>
         assert(seeds.contains("192.168.178.26"))
         val coins = conf["coins"] as List<*>
