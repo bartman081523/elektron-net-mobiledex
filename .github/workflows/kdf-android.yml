@@ -85,7 +85,13 @@ jobs:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
           LIBCLANG_PATH: /usr/lib/llvm-18/lib
         run: |
-          cargo ndk -t arm64-v8a build --release --bin kdf 2>&1 | tail -40
+          set -o pipefail
+          if ! cargo ndk -t arm64-v8a build --release --bin kdf > build.log 2>&1; then
+            echo "--- build failed, last 80 lines ---"
+            tail -80 build.log
+            exit 1
+          fi
+          tail -3 build.log
           ls -la target/aarch64-linux-android/release/kdf
 
       - name: Package libkdfbin.so
@@ -102,6 +108,14 @@ jobs:
           echo "built from ${{ steps.src.outputs.sha }}" >> dist/BUILD.txt
           tar -C dist -czf dist/kdf-android-arm64-${{ steps.src.outputs.sha }}.tar.gz \
             libkdfbin.so libkdfbin.so.sha256
+
+      - name: Keep the build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdf-build-log
+          path: kdf/build.log
+          if-no-files-found: ignore
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
