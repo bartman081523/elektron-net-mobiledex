@@ -75,35 +75,13 @@ import org.elektronnet.mobile.ui.tools.copyText
 import org.elektronnet.mobile.ui.receive.QrView
 import org.elektronnet.mobile.service.NodeHost
 
-// every pair the engine's coin set can trade, so a new coin shows up without
-// touching this screen
-private fun availablePairs(): List<Pair<String, String>> {
-    val tickers = KdfConfig.coinsFor(ChainConfig.isTestnet, emptyList()).map { it.ticker }
-    return tickers.flatMapIndexed { index, base ->
-        tickers.drop(index + 1).map { rel -> base to rel }
-    }
-}
-
-/**
- * The engine nests its reasons behind "<file>:<line>] " markers and answers with
- * a JSON body; the last marker carries the sentence a user can act on.
- */
-private fun readableError(message: String?): String {
-    var text = message.orEmpty()
-    text = text.substringAfter("\"error\":\"", text)
-    text = text.substringBeforeLast("\"", text)
-    text = text.replace("KDF RPC error HTTP 500: ", "")
-    text = text.split("] ").lastOrNull().orEmpty()
-    return text.trim().ifEmpty { text.trim() }
-}
-
 @Composable
 fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true, onAddWallet: () -> Unit = {}) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val kdf = NodeHost.kdfSupervisor
 
-    val availablePairs = remember { availablePairs() }
+    val availablePairs = remember { KdfConfig.pairs(ChainConfig.isTestnet) }
     var selectedPairIndex by remember { mutableIntStateOf(0) }
     val currentPair = availablePairs[selectedPairIndex]
     val base = currentPair.first
@@ -436,7 +414,7 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true, onAddWallet: () -> 
                                     }
                                 } catch (e: Exception) {
                                     withContext(Dispatchers.Main) {
-                                        errorMessage = readableError(e.message)
+                                        errorMessage = org.elektronnet.mobile.kdf.KdfErrorText.readable(e.message)
                                         isOperating = false
                                     }
                                 }
@@ -993,7 +971,7 @@ private fun WithdrawDialog(
                         inProgress = false
                         res.fold(
                             onSuccess = { txHash -> onSuccess(txHash, selectedWallet) },
-                            onFailure = { err -> errorText = readableError(err.message ?: err.toString()) },
+                            onFailure = { err -> errorText = org.elektronnet.mobile.kdf.KdfErrorText.readable(err.message ?: err.toString()) },
                         )
                     }
                 },

@@ -250,7 +250,13 @@ class KdfClient(
 
     fun mySwapStatus(uuid: String): SwapStatus {
         val res = callV2("my_swap_status", mapOf("uuid" to uuid))
-        val result = res["result"] as? Map<*, *> ?: return SwapStatus(uuid, "Unknown", null, emptyList(), "", "", BigDecimal.ZERO, BigDecimal.ZERO)
+        val result = res["result"] as? Map<*, *>
+            ?: return SwapStatus(uuid, "Unknown", null, emptyList(), "", "", BigDecimal.ZERO, BigDecimal.ZERO)
+        return parseSwapStatus(uuid, result)
+    }
+
+    /** Pure parser for one `my_swap_status` result, so the shapes are testable. */
+    internal fun parseSwapStatus(uuid: String, result: Map<*, *>): SwapStatus {
         val swapData = result["swap_data"] as? Map<*, *> ?: result
         val errorEvents = result["error_events"] as? List<*>
         val eventsList = (swapData["events"] as? List<*>).orEmpty()
@@ -417,7 +423,7 @@ class KdfClient(
         else -> toDecimal(value)
     }
 
-    private fun parseOrderEntry(obj: Any?, isAsk: Boolean): OrderEntry? {
+    internal fun parseOrderEntry(obj: Any?, isAsk: Boolean): OrderEntry? {
         val m = obj as? Map<*, *> ?: return null
         val price = decimalField(m["price"]) ?: BigDecimal.ZERO
         val minVol = decimalField(m["base_min_volume"] ?: m["min_volume"] ?: m["minvolume"]) ?: BigDecimal.ZERO

@@ -133,36 +133,38 @@ object NodeHost {
                 fun note(line: String) { runCatching { log.appendText("${System.currentTimeMillis()} $line\n") } }
                 note("tick: ${swaps.size} swaps, claimed=${claimed.size}")
                 for (sw in swaps) {
-                    // my_coin/my_amount is what this side receives, other_* is what it paid
-                    if (sw.state != "Finished" || sw.myAmount <= java.math.BigDecimal.ZERO) {
-                        note("skip ${sw.uuid.take(8)} state=${sw.state} amount=${sw.myAmount}")
-                        continue
-                    }
-                    if (sw.uuid in claimed) continue
-                    val wallet = walletForCoin(sw.myCoin)
-                    note("claim ${sw.uuid.take(8)} coin=${sw.myCoin} amount=${sw.myAmount} wallet=$wallet")
-                    if (wallet == null) {
-                        if (canNodeHold(sw.myCoin)) missingWalletCoin = sw.myCoin
-                        claimed += sw.uuid
-                        store.claimedSwaps = claimed
-                        continue
-                    }
+                    val decision = org.elektronnet.mobile.kdf.SwapClaimPolicy.decide(
+                        swap = sw,
+                        claimed = claimed,
+                        walletForCoin = ::walletForCoin,
+                        canNodeHold = ::canNodeHold,
+                    ) ?: continue
                     claimed += sw.uuid
                     store.claimedSwaps = claimed
-                    // only what the swap brought in: the rest stays in the swap wallet
-                    // as the float for the next maker order
-                    val received = sw.myAmount.stripTrailingZeros().toPlainString()
-                    runCatching {
-                        kotlinx.coroutines.runBlocking {
-                            withdrawFromKdfToWallet(sw.myCoin, wallet, amount = received, max = false)
+                    note("${decision.action} ${sw.uuid.take(8)} coin=${decision.coin} amount=${decision.amount} wallet=${decision.wallet}")
+                    when (decision.action) {
+                        org.elektronnet.mobile.kdf.ClaimAction.AskForWallet -> missingWalletCoin = decision.coin
+                        org.elektronnet.mobile.kdf.ClaimAction.KeepInMesh -> Unit
+                        org.elektronnet.mobile.kdf.ClaimAction.Claim -> {
+                            val received = org.elektronnet.mobile.kdf.SwapClaimPolicy.amountText(decision.amount)
+                            runCatching {
+                                kotlinx.coroutines.runBlocking {
+                                    withdrawFromKdfToWallet(
+                                        decision.coin,
+                                        decision.wallet!!,
+                                        amount = received,
+                                        max = false,
+                                    )
+                                }
+                            }.onSuccess {
+                                lastClaim = decision.coin to decision.wallet!!
+                                lastClaimError = null
+                                note("ok ${sw.uuid.take(8)} -> ${decision.wallet}")
+                            }.onFailure { error ->
+                                lastClaimError = "${decision.coin}: ${error.message ?: error.javaClass.simpleName}"
+                                note("failed ${sw.uuid.take(8)}: ${error.message}")
+                            }
                         }
-                    }.onSuccess {
-                        lastClaim = sw.myCoin to wallet
-                        lastClaimError = null
-                        note("ok ${sw.uuid.take(8)} -> $wallet")
-                    }.onFailure { error ->
-                        lastClaimError = "${sw.myCoin}: ${error.message ?: error.javaClass.simpleName}"
-                        note("failed ${sw.uuid.take(8)}: ${error.message}")
                     }
                 }
             } finally {

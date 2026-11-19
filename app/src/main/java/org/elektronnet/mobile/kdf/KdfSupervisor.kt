@@ -95,11 +95,6 @@ class KdfSupervisor(
         secretsFile.writeText(Json.stringify(data))
     }
 
-    private data class NetworkProfile(
-        val seeds: List<String> = emptyList(),
-        val electrum: List<String> = emptyList(),
-        val relayIp: String? = null,
-    )
 
     /**
      * Reads kdf/net.txt. Unknown keys are ignored on purpose, so a future
@@ -108,34 +103,27 @@ class KdfSupervisor(
     private fun readNetworkProfile(): NetworkProfile {
         val file = File(kdfDir, "net.txt")
         if (!file.isFile) return NetworkProfile()
-        val seeds = mutableListOf<String>()
-        val electrum = mutableListOf<String>()
-        var relay: String? = null
-        for (raw in file.readLines()) {
-            val line = raw.trim()
-            if (line.isEmpty() || line.startsWith("#")) continue
-            val key = line.substringBefore('=', "").trim().lowercase()
-            val value = line.substringAfter('=', "").trim()
-            if (value.isEmpty()) continue
-            when (key) {
-                "seed", "seednode", "peer" -> seeds += value
-                "electrum", "electrum_server" -> electrum += value
-                "relay", "relay_ip" -> relay = value
-            }
-        }
-        return NetworkProfile(seeds = seeds, electrum = electrum, relayIp = relay)
+        return KdfNetProfile.parse(file.readText())
     }
 
     fun binary(): File = File(context.applicationInfo.nativeLibraryDir, "libkdfbin.so")
+
+    companion object {
+        const val MAX_RESTARTS = 5
+        const val RESTART_DELAY_MS = 2_000L
+    }
 
     fun isBinaryAvailable(): Boolean {
         val bin = binary()
         return bin.exists() && bin.canExecute()
     }
 
+    private var restarts = 0
+
     fun start() {
         synchronized(lock) {
             if (state == KdfState.Starting || state == KdfState.Running) return
+            restarts = 0
             state = KdfState.Starting
             versionInfo = ""
             Thread({ runSupervisor() }, "kdf-supervisor").apply { isDaemon = true }.start()
@@ -246,7 +234,18 @@ class KdfSupervisor(
         synchronized(lock) {
             if (process !== started) return
             process = null
-            if (state != KdfState.Stopped) {
+            if (state == KdfState.Stopped) return
+            // a crash after start must not leave the DEX dead until the next app start
+            if (restarts < MAX_RESTARTS) {
+                restarts++
+                val attempt = restarts
+                output.add("KDF exited code $code, restart $attempt/$MAX_RESTARTS")
+                state = KdfState.Stopped
+                Thread({
+                    Thread.sleep(RESTART_DELAY_MS * attempt)
+                    start()
+                }, "kdf-restart").apply { isDaemon = true }.start()
+            } else {
                 val tail = output.tail(4).joinToString("\n")
                 state = KdfState.Error("KDF exited code $code: $tail")
             }

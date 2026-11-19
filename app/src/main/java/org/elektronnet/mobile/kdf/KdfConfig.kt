@@ -95,6 +95,12 @@ object KdfConfig {
         )
     }
 
+    /** Every pair the activated coins can trade, in the order the screens show them. */
+    fun pairs(isTestnet: Boolean): List<Pair<String, String>> {
+        val tickers = coinsFor(isTestnet, emptyList()).map { it.ticker }
+        return tickers.flatMapIndexed { index, base -> tickers.drop(index + 1).map { rel -> base to rel } }
+    }
+
     /**
      * Deterministic KDF Passphrase derived from the wallet seed phrase (Task #98).
      * Returns "elkkdf1" + sha256("elektron-net/kdf-passphrase/v1/" + seedText).
