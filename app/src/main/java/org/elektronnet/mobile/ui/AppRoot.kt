@@ -90,6 +90,8 @@ private val PRIMARY_TABS = listOf(Tab.Market, Tab.Swap, Tab.Wallet, Tab.More)
 
 @Composable
 fun AppRoot(onStart: () -> Unit, onStop: () -> Unit, onPause: () -> Unit, onResume: () -> Unit, onBiometric: (Boolean) -> Unit, onRestart: () -> Unit = {}, onRestartAll: () -> Unit = {}) {
+    // a click on an order in the market prefills the taker amount
+    var swapPrefillVolume by remember { mutableStateOf<String?>(null) }
     var tab by rememberSaveable { mutableStateOf(Tab.Market.ordinal) }
     var showSoon by remember { mutableStateOf(false) }
     var overlayName by rememberSaveable { mutableStateOf(Overlay.None.name) }
@@ -325,12 +327,17 @@ fun AppRoot(onStart: () -> Unit, onStop: () -> Unit, onPause: () -> Unit, onResu
             Box(modifier = Modifier.weight(1f)) {
             when (Tab.entries[tab]) {
                 Tab.Market -> org.elektronnet.mobile.ui.market.MarketScreen(
-                    onOpenSwap = { tab = Tab.Swap.ordinal },
+                    onOpenSwap = { volume ->
+                        swapPrefillVolume = volume
+                        tab = Tab.Swap.ordinal
+                    },
                 )
                 Tab.Swap -> org.elektronnet.mobile.ui.tools.SwapScreen(
                     onBack = { tab = Tab.Market.ordinal },
                     showBack = false,
                     onAddWallet = { show(Overlay.AddWallet) },
+                    prefillVolume = swapPrefillVolume,
+                    onPrefillConsumed = { swapPrefillVolume = null },
                 )
                 Tab.More -> org.elektronnet.mobile.ui.more.MoreScreen(
                     onOpenHistory = { tab = Tab.History.ordinal },

@@ -83,7 +83,9 @@ object KdfConfig {
         )
     } else {
         listOf(
-            KdfCoin("ELEK", KdfCoinKind.UTXO, electrum = ELEK_ELECTRUM_SERVERS),
+            // the profile is this install's indexer; it also covers the private
+            // mainnet chain we run for the tests, the public servers are the default
+            KdfCoin("ELEK", KdfCoinKind.UTXO, electrum = electrumServers.ifEmpty { ELEK_ELECTRUM_SERVERS }),
             KdfCoin("BTC", KdfCoinKind.UTXO, electrum = BTC_ELECTRUM_SERVERS),
             KdfCoin(
                 "ETH",
@@ -263,7 +265,7 @@ object KdfConfig {
                     "rpcport" to 8332,
                     "mm2" to 1,
                     "protocol" to mapOf("type" to "UTXO"),
-                    "electrum" to ELEK_ELECTRUM_SERVERS.map { mapOf("url" to it, "protocol" to "TCP") },
+                    "electrum" to electrumServers.ifEmpty { ELEK_ELECTRUM_SERVERS }.map { mapOf("url" to it, "protocol" to "TCP") },
                 ),
                 mapOf(
                     "coin" to "BTC",

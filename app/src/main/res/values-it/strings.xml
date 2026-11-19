@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">Impossibile trasferire %1$s: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s resta nel portafoglio di scambio: questo nodo non gestisce quella catena.</string>
     <string name="swap_wallet_note_dismiss">OK</string>
+    <string name="settings_net_profile_hint">Seed P2P, l\'indexer Electrum di questa installazione e il ruolo di relay. Una modifica riavvia il motore.</string>
+    <string name="settings_net_seeds">Seed P2P (una per riga)</string>
+    <string name="settings_net_electrum">Indexer Electrum (host:porta)</string>
+    <string name="settings_net_relay">Indirizzo relay (vuoto: nessun relay)</string>
+    <string name="settings_net_invalid">%1$s non è host:porta</string>
+    <string name="settings_net_save">Salva profilo di rete</string>
+    <string name="settings_net_saved">Salvato. Il motore si riavvia con il nuovo profilo.</string>
 </resources>

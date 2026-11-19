@@ -1010,4 +1010,11 @@
     <string name="swap_wallet_auto_failed">%1$s konnte nicht übertragen werden: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s bleibt in der Swap-Wallet: Dieser Node führt diese Kette nicht.</string>
     <string name="swap_wallet_note_dismiss">OK</string>
+    <string name="settings_net_profile_hint">P2P-Seeds, der Electrum-Indexer dieser Installation und die Relay-Rolle. Eine Änderung startet die Engine neu.</string>
+    <string name="settings_net_seeds">P2P-Seeds (eine pro Zeile)</string>
+    <string name="settings_net_electrum">Electrum-Indexer (Host:Port)</string>
+    <string name="settings_net_relay">Relay-Adresse (leer: kein Relay)</string>
+    <string name="settings_net_invalid">%1$s ist kein Host:Port</string>
+    <string name="settings_net_save">Netzwerkprofil speichern</string>
+    <string name="settings_net_saved">Gespeichert. Die Engine startet mit dem neuen Profil neu.</string>
 </resources>

@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">Не удалось перевести %1$s: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s остаётся в обменном кошельке: этот узел не поддерживает эту сеть.</string>
     <string name="swap_wallet_note_dismiss">ОК</string>
+    <string name="settings_net_profile_hint">P2P-сиды, Electrum-индексатор этой установки и роль релея. Изменение перезапускает движок.</string>
+    <string name="settings_net_seeds">P2P-сиды (по одному в строке)</string>
+    <string name="settings_net_electrum">Electrum-индексатор (host:port)</string>
+    <string name="settings_net_relay">Адрес релея (пусто: без релея)</string>
+    <string name="settings_net_invalid">%1$s — не host:port</string>
+    <string name="settings_net_save">Сохранить сетевой профиль</string>
+    <string name="settings_net_saved">Сохранено. Движок перезапускается с новым профилем.</string>
 </resources>

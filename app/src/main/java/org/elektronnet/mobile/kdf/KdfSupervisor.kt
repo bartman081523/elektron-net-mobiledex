@@ -106,6 +106,25 @@ class KdfSupervisor(
         return KdfNetProfile.parse(file.readText())
     }
 
+    /** Current network profile of this install (kdf/net.txt). */
+    val networkProfile: NetworkProfile get() = readNetworkProfile()
+
+    /**
+     * Writes the profile and restarts a running engine so the change takes
+     * effect; a stopped engine picks it up on the next start.
+     */
+    fun saveNetworkProfile(profile: NetworkProfile) {
+        File(kdfDir, "net.txt").writeText(KdfNetProfile.render(profile))
+        val running = state == KdfState.Running
+        output.add("network profile saved: ${profile.seeds.size} seeds, ${profile.electrum.size} indexer, relay=${profile.relayIp ?: "-"}")
+        if (running) {
+            Thread({
+                stop()
+                start()
+            }, "kdf-profile-restart").apply { isDaemon = true }.start()
+        }
+    }
+
     fun binary(): File = File(context.applicationInfo.nativeLibraryDir, "libkdfbin.so")
 
     companion object {

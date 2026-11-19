@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">%1$s aktarılamadı: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s takas cüzdanında kalır: bu düğüm o zinciri taşımıyor.</string>
     <string name="swap_wallet_note_dismiss">Tamam</string>
+    <string name="settings_net_profile_hint">P2P seed\'leri, bu kurulumun Electrum indeksleyicisi ve relay rolü. Değişiklik motoru yeniden başlatır.</string>
+    <string name="settings_net_seeds">P2P seed\'leri (her satırda bir tane)</string>
+    <string name="settings_net_electrum">Electrum indeksleyici (host:port)</string>
+    <string name="settings_net_relay">Relay adresi (boş: relay yok)</string>
+    <string name="settings_net_invalid">%1$s host:port değil</string>
+    <string name="settings_net_save">Ağ profilini kaydet</string>
+    <string name="settings_net_saved">Kaydedildi. Motor yeni profille yeniden başlar.</string>
 </resources>

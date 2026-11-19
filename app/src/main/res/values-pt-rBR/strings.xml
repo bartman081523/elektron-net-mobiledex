@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">Não foi possível transferir %1$s: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s fica na carteira de troca: este nó não suporta essa rede.</string>
     <string name="swap_wallet_note_dismiss">OK</string>
+    <string name="settings_net_profile_hint">Seeds P2P, o indexador Electrum desta instalação e o papel de relay. Uma alteração reinicia o motor.</string>
+    <string name="settings_net_seeds">Seeds P2P (uma por linha)</string>
+    <string name="settings_net_electrum">Indexador Electrum (host:porta)</string>
+    <string name="settings_net_relay">Endereço de relay (vazio: sem relay)</string>
+    <string name="settings_net_invalid">%1$s não é host:porta</string>
+    <string name="settings_net_save">Salvar perfil de rede</string>
+    <string name="settings_net_saved">Salvo. O motor reinicia com o novo perfil.</string>
 </resources>

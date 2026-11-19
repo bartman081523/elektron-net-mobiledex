@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">%1$s을(를) 옮기지 못했습니다: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s은(는) 스왑 지갑에 남습니다: 이 노드는 해당 체인을 지원하지 않습니다.</string>
     <string name="swap_wallet_note_dismiss">확인</string>
+    <string name="settings_net_profile_hint">P2P 시드, 이 설치의 Electrum 인덱서, 릴레이 역할. 변경하면 엔진이 다시 시작됩니다.</string>
+    <string name="settings_net_seeds">P2P 시드 (한 줄에 하나)</string>
+    <string name="settings_net_electrum">Electrum 인덱서 (호스트:포트)</string>
+    <string name="settings_net_relay">릴레이 주소 (비우면 릴레이 없음)</string>
+    <string name="settings_net_invalid">%1$s 은(는) 호스트:포트가 아닙니다</string>
+    <string name="settings_net_save">네트워크 프로필 저장</string>
+    <string name="settings_net_saved">저장됨. 엔진이 새 프로필로 다시 시작됩니다.</string>
 </resources>

@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">%1$s tidak dapat dipindahkan: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s tetap di dompet swap: node ini tidak menjalankan jaringan itu.</string>
     <string name="swap_wallet_note_dismiss">OK</string>
+    <string name="settings_net_profile_hint">Seed P2P, indexer Electrum instalasi ini dan peran relay. Perubahan memulai ulang mesin.</string>
+    <string name="settings_net_seeds">Seed P2P (satu per baris)</string>
+    <string name="settings_net_electrum">Indexer Electrum (host:port)</string>
+    <string name="settings_net_relay">Alamat relay (kosong: tanpa relay)</string>
+    <string name="settings_net_invalid">%1$s bukan host:port</string>
+    <string name="settings_net_save">Simpan profil jaringan</string>
+    <string name="settings_net_saved">Tersimpan. Mesin dimulai ulang dengan profil baru.</string>
 </resources>
