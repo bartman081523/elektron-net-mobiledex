@@ -12,7 +12,7 @@ on:
       ref:
         description: "KDF commit or tag to build"
         required: true
-        default: "367e4dd4d"
+        default: "367e4dd4d77dd873ab2a5b9d38a998b36e9efe3c"
       tag:
         description: "Release tag for the artifact"
         required: true
@@ -33,9 +33,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: bartman081523/elektron-net-kdf
-          ref: ${{ inputs.ref || github.ref_name }}
+          # full history: the input is a commit, not a branch
+          fetch-depth: 0
           path: kdf
           submodules: recursive
+
+      - name: Check out the requested commit
+        working-directory: kdf
+        run: |
+          git checkout "${{ inputs.ref || github.ref_name }}"
+          git rev-parse HEAD
 
       - name: Record the source commit
         id: src
