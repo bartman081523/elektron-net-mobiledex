@@ -48,4 +48,62 @@ class KdfConfigTest {
         assertEquals(KdfConfig.SEPOLIA_SWAP_CONTRACT, eth.swapContract)
         assertEquals(18, eth.decimals)
     }
+
+    @Test
+    fun pairsCoverEveryCombinationOnce() {
+        assertEquals(
+            listOf("tELEK" to "tBTC", "tELEK" to "SEPOLIAETH", "tBTC" to "SEPOLIAETH"),
+            KdfConfig.pairs(true),
+        )
+        assertEquals(
+            listOf("ELEK" to "BTC", "ELEK" to "ETH", "BTC" to "ETH"),
+            KdfConfig.pairs(false),
+        )
+    }
+
+    @Test
+    fun pairsFollowTheCoinOrder() {
+        val pairs = KdfConfig.pairs(true)
+        assertEquals(3, pairs.size)
+        assert(pairs.all { (base, rel) -> base != rel })
+        assert(pairs.none { (base, rel) -> (rel to base) in pairs })
+    }
+
+    @Test
+    fun configCarriesTheNetworkIdAndCoins() {
+        val conf = KdfConfig.buildConfig(
+            kdfDir = File(System.getProperty("java.io.tmpdir"), "kdf-config-test"),
+            isTestnet = true,
+            passphrase = "test-passphrase-0123456789abcdef",
+            rpcPassword = "K_0123456789abcdef0123456789abcdef",
+            extraSeednodes = listOf("192.168.178.26"),
+            electrumServers = listOf("192.168.178.21:50002"),
+        )
+        assertEquals(8888, conf["netid"])
+        assertEquals(7823, conf["rpcport"])
+        val seeds = conf["seednodes"] as List<*>
+        assert(seeds.contains("192.168.178.26"))
+        val coins = conf["coins"] as List<*>
+        val utxo = coins.map { it as Map<*, *> }.filter { (it["protocol"] as Map<*, *>)["type"] == "UTXO" }
+        assertEquals(2, utxo.size)
+        utxo.forEach { coin ->
+            val electrum = coin["electrum"] as List<*>
+            assertEquals(listOf("192.168.178.21:50002"), electrum.map { (it as Map<*, *>)["url"] })
+        }
+        assert(conf["i_am_seed"] == null)
+    }
+
+    @Test
+    fun relayRoleTurnsTheInstallIntoASeed() {
+        val conf = KdfConfig.buildConfig(
+            kdfDir = File(System.getProperty("java.io.tmpdir"), "kdf-config-test"),
+            isTestnet = true,
+            passphrase = "test-passphrase-0123456789abcdef",
+            rpcPassword = "K_0123456789abcdef0123456789abcdef",
+            relayIp = "192.168.178.26",
+        )
+        assertEquals(true, conf["i_am_seed"])
+        assertEquals(false, conf["is_bootstrap_node"])
+        assertEquals("192.168.178.26", conf["myipaddr"])
+    }
 }

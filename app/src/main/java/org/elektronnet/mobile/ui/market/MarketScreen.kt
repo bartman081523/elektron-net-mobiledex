@@ -59,14 +59,6 @@ import org.elektronnet.mobile.ui.tools.ErrorText
 import org.elektronnet.mobile.ui.tools.Hint
 import org.elektronnet.mobile.ui.tools.ToolPage
 
-// every pair the engine's coin set can trade, so a new coin shows up by itself
-private fun marketPairs(): List<Pair<String, String>> {
-    val tickers = KdfConfig.coinsFor(ChainConfig.isTestnet, emptyList()).map { it.ticker }
-    return tickers.flatMapIndexed { index, base ->
-        tickers.drop(index + 1).map { rel -> base to rel }
-    }
-}
-
 /**
  * The front page of the DEX: what the market offers right now.
  *
@@ -78,7 +70,7 @@ private fun marketPairs(): List<Pair<String, String>> {
 fun MarketScreen(onOpenSwap: () -> Unit) {
     val scope = rememberCoroutineScope()
     val kdf = NodeHost.kdfSupervisor
-    val pairs = remember { marketPairs() }
+    val pairs = remember { KdfConfig.pairs(ChainConfig.isTestnet) }
     var pairIndex by remember { mutableIntStateOf(0) }
     val pair = pairs[pairIndex]
     val base = pair.first
