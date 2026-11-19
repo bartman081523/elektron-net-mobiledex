@@ -69,6 +69,8 @@ android {
             buildConfigField("String", "DEFAULT_THEME", "\"teal\"")
             buildConfigField("boolean", "IS_TESTNET", "false")
             buildConfigField("String", "DEFAULT_WALLET", "\"elektron\"")
+            // both flavors run on one phone, so the engines must not share a port
+            buildConfigField("int", "KDF_RPC_PORT", "7825")
         }
         create("tnet") {
             dimension = "chain"
@@ -86,6 +88,7 @@ android {
             // the same default wallet name as the mainnet flavor and the wallet line:
             // the testnet already shows in appId, datadir and ports, not in the name
             buildConfigField("String", "DEFAULT_WALLET", "\"elektron\"")
+            buildConfigField("int", "KDF_RPC_PORT", "7823")
         }
     }
 
