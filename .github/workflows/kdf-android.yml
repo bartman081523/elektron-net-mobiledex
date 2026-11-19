@@ -1,0 +1,119 @@
+# M4: reproducible Android build of the KDF engine binary.
+#
+# The APK ships the engine as jniLibs/arm64-v8a/libkdfbin.so (a PIE executable
+# renamed, so the app can run it from its native lib dir). This workflow builds
+# it from the pinned KDF commit and attaches it plus its checksum to a release,
+# so a build can be traced back to a source commit.
+name: kdf-android
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "KDF commit or tag to build"
+        required: true
+        default: "367e4dd4d"
+      tag:
+        description: "Release tag for the artifact"
+        required: true
+        default: "kdf-android"
+  push:
+    tags:
+      - "kdf-*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout KDF
+        uses: actions/checkout@v4
+        with:
+          repository: bartman081523/elektron-net-kdf
+          ref: ${{ inputs.ref || github.ref_name }}
+          path: kdf
+          submodules: recursive
+
+      - name: Record the source commit
+        id: src
+        run: |
+          echo "sha=$(git -C kdf rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          git -C kdf log -1 --format='%h %s' > kdf-commit.txt
+          cat kdf-commit.txt
+
+      - name: Rust and Android tooling
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustup target add aarch64-linux-android
+          # bindgen needs libclang for the sys crates
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libclang-dev clang
+          cargo install cargo-ndk --locked
+
+      - name: Android NDK
+        id: ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27c
+          add-to-path: false
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            kdf/target
+          key: kdf-android-${{ steps.src.outputs.sha }}-${{ hashFiles('kdf/Cargo.lock') }}
+          restore-keys: kdf-android-${{ steps.src.outputs.sha }}-
+
+      - name: Build the engine binary
+        working-directory: kdf
+        env:
+          ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+          LIBCLANG_PATH: /usr/lib/llvm-18/lib
+        run: |
+          cargo ndk -t arm64-v8a build --release --bin kdf 2>&1 | tail -40
+          ls -la target/aarch64-linux-android/release/kdf
+
+      - name: Package libkdfbin.so
+        run: |
+          NDK="${{ steps.ndk.outputs.ndk-path }}"
+          STRIP="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip"
+          mkdir -p dist
+          cp kdf/target/aarch64-linux-android/release/kdf dist/libkdfbin.so
+          "$STRIP" --strip-unneeded dist/libkdfbin.so
+          file dist/libkdfbin.so
+          sha256sum dist/libkdfbin.so > dist/libkdfbin.so.sha256
+          cat dist/libkdfbin.so.sha256
+          cat kdf-commit.txt >> dist/BUILD.txt
+          echo "built from ${{ steps.src.outputs.sha }}" >> dist/BUILD.txt
+          tar -C dist -czf dist/kdf-android-arm64-${{ steps.src.outputs.sha }}.tar.gz \
+            libkdfbin.so libkdfbin.so.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdf-android-${{ steps.src.outputs.sha }}
+          path: |
+            dist/libkdfbin.so
+            dist/libkdfbin.so.sha256
+          if-no-files-found: error
+
+      - name: Attach to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          name: ${{ inputs.tag || github.ref_name }}
+          prerelease: true
+          overwrite_files: true
+          files: |
+            dist/kdf-android-arm64-*.tar.gz
+            dist/BUILD.txt
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
