@@ -58,7 +58,8 @@ jobs:
           rustup target add aarch64-linux-android
           # bindgen needs libclang for the sys crates
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libclang-dev clang
+          # protoc for mm2src/coins/build.rs (prost-build), libclang for bindgen
+          sudo apt-get install -y --no-install-recommends libclang-dev clang protobuf-compiler
           cargo install cargo-ndk --locked
 
       - name: Android NDK
