@@ -77,7 +77,13 @@ import org.elektronnet.mobile.ui.receive.QrView
 import org.elektronnet.mobile.service.NodeHost
 
 @Composable
-fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true, onAddWallet: () -> Unit = {}) {
+fun SwapScreen(
+    onBack: () -> Unit,
+    showBack: Boolean = true,
+    onAddWallet: () -> Unit = {},
+    prefillVolume: String? = null,
+    onPrefillConsumed: () -> Unit = {},
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val kdf = NodeHost.kdfSupervisor
@@ -107,6 +113,15 @@ fun SwapScreen(onBack: () -> Unit, showBack: Boolean = true, onAddWallet: () -> 
     var withdrawCoin by remember { mutableStateOf<String?>(null) }
     var withdrawInitialAmount by remember { mutableStateOf("") }
     var showShareAddressDialog by remember { mutableStateOf(false) }
+    // a click on an order in the market hands the amount over
+    LaunchedEffect(prefillVolume) {
+        if (!prefillVolume.isNullOrBlank()) {
+            swapVolume = prefillVolume
+            actionTab = 0
+            onPrefillConsumed()
+        }
+    }
+
     var missingWalletCoin by remember { mutableStateOf<String?>(null) }
     var claimNote by remember { mutableStateOf<String?>(null) }
 

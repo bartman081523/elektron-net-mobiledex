@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">%1$s を移動できませんでした: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s はスワップウォレットに残ります: このノードはそのチェーンを扱いません。</string>
     <string name="swap_wallet_note_dismiss">OK</string>
+    <string name="settings_net_profile_hint">P2P シード、このインストールの Electrum インデクサー、リレーの役割。変更するとエンジンが再起動します。</string>
+    <string name="settings_net_seeds">P2P シード（1 行に 1 つ）</string>
+    <string name="settings_net_electrum">Electrum インデクサー（ホスト:ポート）</string>
+    <string name="settings_net_relay">リレーアドレス（空: リレーなし）</string>
+    <string name="settings_net_invalid">%1$s は ホスト:ポート ではありません</string>
+    <string name="settings_net_save">ネットワークプロファイルを保存</string>
+    <string name="settings_net_saved">保存しました。エンジンは新しいプロファイルで再起動します。</string>
 </resources>

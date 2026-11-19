@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">%1$s स्थानांतरित नहीं हो सका: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s स्वैप वॉलेट में रहता है: यह नोड उस चेन को नहीं चलाता।</string>
     <string name="swap_wallet_note_dismiss">ठीक</string>
+    <string name="settings_net_profile_hint">P2P सीड, इस इंस्टॉल का Electrum इंडेक्सर और रिले भूमिका। बदलाव इंजन को फिर से शुरू करता है।</string>
+    <string name="settings_net_seeds">P2P सीड (प्रति पंक्ति एक)</string>
+    <string name="settings_net_electrum">Electrum इंडेक्सर (होस्ट:पोर्ट)</string>
+    <string name="settings_net_relay">रिले पता (खाली: कोई रिले नहीं)</string>
+    <string name="settings_net_invalid">%1$s होस्ट:पोर्ट नहीं है</string>
+    <string name="settings_net_save">नेटवर्क प्रोफ़ाइल सहेजें</string>
+    <string name="settings_net_saved">सहेजा गया। इंजन नई प्रोफ़ाइल के साथ फिर शुरू होगा।</string>
 </resources>

@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">无法转入 %1$s：%2$s</string>
     <string name="swap_wallet_mesh_only">%1$s 保留在交换钱包：此节点不支持该网络。</string>
     <string name="swap_wallet_note_dismiss">好</string>
+    <string name="settings_net_profile_hint">P2P 种子、本安装的 Electrum 索引器和中继角色。修改会重启引擎。</string>
+    <string name="settings_net_seeds">P2P 种子（每行一个）</string>
+    <string name="settings_net_electrum">Electrum 索引器（主机:端口）</string>
+    <string name="settings_net_relay">中继地址（留空：无中继）</string>
+    <string name="settings_net_invalid">%1$s 不是 主机:端口</string>
+    <string name="settings_net_save">保存网络配置</string>
+    <string name="settings_net_saved">已保存。引擎将以新配置重启。</string>
 </resources>

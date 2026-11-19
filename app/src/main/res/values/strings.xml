@@ -1055,4 +1055,11 @@
     <string name="swap_wallet_auto_failed">%1$s could not be moved: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s stays in the swap wallet: this node does not carry that chain.</string>
     <string name="swap_wallet_note_dismiss">OK</string>
+    <string name="settings_net_profile_hint">P2P seeds, the Electrum indexer this install uses and the relay role. A change restarts the engine.</string>
+    <string name="settings_net_seeds">P2P seeds (one per line)</string>
+    <string name="settings_net_electrum">Electrum indexer (host:port)</string>
+    <string name="settings_net_relay">Relay address (empty: no relay)</string>
+    <string name="settings_net_invalid">%1$s is not a host:port</string>
+    <string name="settings_net_save">Save network profile</string>
+    <string name="settings_net_saved">Saved. The engine restarts with the new profile.</string>
 </resources>

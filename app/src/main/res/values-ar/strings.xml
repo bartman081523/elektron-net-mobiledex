@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">تعذّر نقل %1$s: %2$s</string>
     <string name="swap_wallet_mesh_only">يبقى %1$s في محفظة المقايضة: هذه العقدة لا تدعم تلك الشبكة.</string>
     <string name="swap_wallet_note_dismiss">حسنًا</string>
+    <string name="settings_net_profile_hint">بذور P2P، وفهرس Electrum لهذا التثبيت، ودور المرحّل. أي تغيير يعيد تشغيل المحرك.</string>
+    <string name="settings_net_seeds">بذور P2P (واحد في كل سطر)</string>
+    <string name="settings_net_electrum">فهرس Electrum (مضيف:منفذ)</string>
+    <string name="settings_net_relay">عنوان المرحّل (فارغ: بلا مرحّل)</string>
+    <string name="settings_net_invalid">%1$s ليس مضيف:منفذ</string>
+    <string name="settings_net_save">حفظ ملف الشبكة</string>
+    <string name="settings_net_saved">تم الحفظ. يُعاد تشغيل المحرك بالملف الجديد.</string>
 </resources>

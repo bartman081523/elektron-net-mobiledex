@@ -1009,4 +1009,11 @@
     <string name="swap_wallet_auto_failed">Không thể chuyển %1$s: %2$s</string>
     <string name="swap_wallet_mesh_only">%1$s ở lại ví hoán đổi: nút này không chạy mạng đó.</string>
     <string name="swap_wallet_note_dismiss">OK</string>
+    <string name="settings_net_profile_hint">Seed P2P, chỉ mục Electrum của bản cài này và vai trò relay. Thay đổi sẽ khởi động lại công cụ.</string>
+    <string name="settings_net_seeds">Seed P2P (mỗi dòng một cái)</string>
+    <string name="settings_net_electrum">Chỉ mục Electrum (host:cổng)</string>
+    <string name="settings_net_relay">Địa chỉ relay (trống: không relay)</string>
+    <string name="settings_net_invalid">%1$s không phải host:cổng</string>
+    <string name="settings_net_save">Lưu hồ sơ mạng</string>
+    <string name="settings_net_saved">Đã lưu. Công cụ khởi động lại với hồ sơ mới.</string>
 </resources>

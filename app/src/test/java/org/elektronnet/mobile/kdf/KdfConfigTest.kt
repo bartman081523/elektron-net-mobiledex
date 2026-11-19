@@ -106,4 +106,18 @@ class KdfConfigTest {
         assertEquals(false, conf["is_bootstrap_node"])
         assertEquals("192.168.178.26", conf["myipaddr"])
     }
+
+    @Test
+    fun mainnetElekFollowsTheProfileWhileBtcKeepsItsOwnServers() {
+        val profile = listOf("192.168.178.21:50012")
+        val coins = KdfConfig.coinsFor(false, profile)
+        assertEquals(profile, coins.first { it.ticker == "ELEK" }.electrum)
+        assertEquals(KdfConfig.BTC_ELECTRUM_SERVERS, coins.first { it.ticker == "BTC" }.electrum)
+    }
+
+    @Test
+    fun mainnetElekFallsBackToThePublicServers() {
+        val coins = KdfConfig.coinsFor(false, emptyList())
+        assertEquals(KdfConfig.ELEK_ELECTRUM_SERVERS, coins.first { it.ticker == "ELEK" }.electrum)
+    }
 }

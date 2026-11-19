@@ -4,6 +4,7 @@
 package org.elektronnet.mobile.ui.market
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -67,7 +68,7 @@ import org.elektronnet.mobile.ui.tools.ToolPage
  * so this screen carries no trading state of its own.
  */
 @Composable
-fun MarketScreen(onOpenSwap: () -> Unit) {
+fun MarketScreen(onOpenSwap: (prefillVolume: String?) -> Unit) {
     val scope = rememberCoroutineScope()
     val kdf = NodeHost.kdfSupervisor
     val pairs = remember { KdfConfig.pairs(ChainConfig.isTestnet) }
@@ -152,7 +153,7 @@ fun MarketScreen(onOpenSwap: () -> Unit) {
                     )
                 }
                 if (kdf?.state !is KdfState.Running) {
-                    TextButton(onClick = onOpenSwap) { Text(stringResource(R.string.market_start_engine)) }
+                    TextButton(onClick = { onOpenSwap(null) }) { Text(stringResource(R.string.market_start_engine)) }
                 } else if (coinBalances.isNotEmpty()) {
                     Text(
                         stringResource(R.string.market_coins, coinBalances.size),
@@ -222,14 +223,20 @@ fun MarketScreen(onOpenSwap: () -> Unit) {
                     Hint(stringResource(R.string.market_empty))
                 }
                 asks.take(6).forEach { ask ->
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { onOpenSwap(ask.maxVolume.toPlainString()) },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
                         Text(ask.price.toPlainString(), color = Color(0xFFE53935), fontFamily = FontFamily.Monospace)
                         Text(ask.maxVolume.toPlainString(), fontFamily = FontFamily.Monospace)
                     }
                 }
                 if (asks.isNotEmpty() && bids.isNotEmpty()) HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                 bids.take(6).forEach { bid ->
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { onOpenSwap(bid.maxVolume.toPlainString()) },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
                         Text(bid.price.toPlainString(), color = Color(0xFF43A047), fontFamily = FontFamily.Monospace)
                         Text(bid.maxVolume.toPlainString(), fontFamily = FontFamily.Monospace)
                     }
@@ -269,7 +276,7 @@ fun MarketScreen(onOpenSwap: () -> Unit) {
             }
         }
 
-        Button(onClick = onOpenSwap, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { onOpenSwap(null) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.market_open_swap), fontWeight = FontWeight.SemiBold)
         }
     }
